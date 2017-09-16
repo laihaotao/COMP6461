@@ -1,4 +1,4 @@
-package assignment1.request;
+package assignment1.response;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -8,5 +8,5 @@ package assignment1.request;
  */
 
 
-public class RequestBody {
+public class HttpResponse {
 }

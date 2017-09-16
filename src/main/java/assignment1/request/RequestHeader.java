@@ -1,5 +1,7 @@
 package assignment1.request;
 
+import assignment1.common.HeaderKey;
+
 import java.util.HashMap;
 
 /**
@@ -15,11 +17,11 @@ public class RequestHeader {
     private boolean isDebug = false;
     private HashMap<String, String> map = new HashMap<>();
 
-    public void add(RequestHeaderKey key, String value) {
+    public void add(HeaderKey key, String value) {
         map.put(key.name, value);
     }
 
-    public void remove(RequestHeaderKey key) {
+    public void remove(HeaderKey key) {
         map.remove(key.name);
     }
 
