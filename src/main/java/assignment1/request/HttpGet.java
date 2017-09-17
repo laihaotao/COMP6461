@@ -18,6 +18,8 @@ public class HttpGet extends HttpRequest {
 
     @Override
     public void send() {
+        buildRequest();
+        String content = builder.toString();
 
     }
 }

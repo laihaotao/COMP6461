@@ -22,7 +22,7 @@ public class ParamHolder {
     public boolean isVerbose;
 
     public boolean hasHeader;
-    public Map<HeaderKey, String> header = new HashMap<>();
+    public HashMap<HeaderKey, String> header = new HashMap<>();
 
     public boolean hasInlineData;
     public String data;

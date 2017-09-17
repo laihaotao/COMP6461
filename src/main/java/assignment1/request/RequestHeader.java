@@ -15,24 +15,28 @@ import java.util.HashMap;
 public class RequestHeader {
 
     private boolean isDebug = false;
-    private HashMap<String, String> map = new HashMap<>();
+    private HashMap<HeaderKey, String> map;
 
-    public void add(HeaderKey key, String value) {
-        map.put(key.name, value);
+    public RequestHeader(HashMap<HeaderKey, String> map) {
+        this.map = map;
     }
 
-    public void remove(HeaderKey key) {
-        map.remove(key.name);
-    }
+//    public void add(HeaderKey key, String value) {
+//        map.put(key, value);
+//    }
+//
+//    public void remove(HeaderKey key) {
+//        map.remove(key.name);
+//    }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (String key : map.keySet()) {
+        for (HeaderKey key : map.keySet()) {
             if (isDebug) {
-                builder.append(key).append(": ").append(map.get(key)).append("\n");
+                builder.append(key.name).append(": ").append(map.get(key)).append("\n");
             } else {
-                builder.append(key).append(": ").append(map.get(key)).append("\r\n");
+                builder.append(key.name).append(": ").append(map.get(key)).append("\r\n");
             }
         }
         return builder.toString();
