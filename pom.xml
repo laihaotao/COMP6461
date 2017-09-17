@@ -10,6 +10,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+            <version>5.0.2</version>
+        </dependency>
+
       <!-- include JUnit testing framework -->
         <dependency>
             <groupId>junit</groupId>
