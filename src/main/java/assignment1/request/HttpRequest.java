@@ -1,5 +1,7 @@
 package assignment1.request;
 
+import assignment1.common.ParamHolder;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-10
@@ -8,6 +10,11 @@ package assignment1.request;
  */
 
 
-public class HttpRequest {
+public abstract class HttpRequest {
 
+    public HttpRequest(ParamHolder holder) {
+
+    }
+
+    public abstract void send();
 }

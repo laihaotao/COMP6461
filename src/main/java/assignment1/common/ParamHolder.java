@@ -1,0 +1,43 @@
+package assignment1.common;
+
+import assignment1.request.HttpGet;
+import assignment1.request.HttpRequest;
+import assignment1.request.RequestMethod;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Author:  Eric(Haotao) Lai
+ * Date:    2017-09-16
+ * E-mail:  haotao.lai@gmail.com
+ * Website: http://laihaotao.me
+ */
+
+
+public class ParamHolder {
+
+    public RequestMethod method;
+    public boolean isVerbose;
+
+    public boolean hasHeader;
+    public Map<HeaderKey, String> header = new HashMap<>();
+
+    public boolean hasInlineData;
+    public String data;
+    public boolean hasFileDate;
+    public String filePath;
+
+    public String url;
+
+
+    public HttpRequest getRequestInstance() {
+        if (method == RequestMethod.GET) {
+            return new HttpGet(this);
+        }
+        else if (method == RequestMethod.POST) {
+
+        }
+        return null;
+    }
+}

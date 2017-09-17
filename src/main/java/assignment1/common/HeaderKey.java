@@ -1,6 +1,6 @@
 package assignment1.common;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -45,10 +45,10 @@ public enum HeaderKey {
     private int type;
 
     public String name;
-    public static Set<HeaderKey> generalHeaderSet;
-    public static Set<HeaderKey> requestHeaderSet;
-    public static Set<HeaderKey> responseHeaderSet;
-    public static Set<HeaderKey> entityHeaderSet;
+    public static Map<String, HeaderKey> generalHeaderMap;
+    public static Map<String, HeaderKey> requestHeaderMap;
+    public static Map<String, HeaderKey> responseHeaderMap;
+    public static Map<String, HeaderKey> entityHeaderMap;
 
     HeaderKey(String name, int type) {
         this.name = name;
@@ -58,16 +58,16 @@ public enum HeaderKey {
         for (HeaderKey key : HeaderKey.values()) {
             switch (key.type) {
                 case REQUEST:
-                    requestHeaderSet.add(key);
+                    requestHeaderMap.put(key.name, key);
                     break;
                 case RESPONSE:
-                    responseHeaderSet.add(key);
+                    responseHeaderMap.put(key.name, key);
                     break;
                 case GENERAL:
-                    generalHeaderSet.add(key);
+                    generalHeaderMap.put(key.name, key);
                     break;
                 case ENTITY:
-                    entityHeaderSet.add(key);
+                    entityHeaderMap.put(key.name, key);
             }
         }
     }
