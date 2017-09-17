@@ -29,12 +29,13 @@ public class ParamHolder {
     public boolean hasFileDate;
     public String filePath;
 
-    public String path;
     public String host;
+    public String path;
+    public String argsStr;
+    public Map<String, String> args = new HashMap<>();
+
 
     public HttpRequest getRequestInstance() {
-
-
         if (method == RequestMethod.GET) {
             return new HttpGet(this);
         }

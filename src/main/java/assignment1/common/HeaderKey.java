@@ -1,5 +1,6 @@
 package assignment1.common;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,13 +46,14 @@ public enum HeaderKey {
     private int type;
 
     public String name;
-    public static Map<String, HeaderKey> generalHeaderMap;
-    public static Map<String, HeaderKey> requestHeaderMap;
-    public static Map<String, HeaderKey> responseHeaderMap;
-    public static Map<String, HeaderKey> entityHeaderMap;
+    public static Map<String, HeaderKey> generalHeaderMap = new HashMap<>();
+    public static Map<String, HeaderKey> requestHeaderMap = new HashMap<>();
+    public static Map<String, HeaderKey> responseHeaderMap = new HashMap<>();
+    public static Map<String, HeaderKey> entityHeaderMap = new HashMap<>();
 
     HeaderKey(String name, int type) {
         this.name = name;
+        this.type = type;
     }
 
     static {
