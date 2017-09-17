@@ -1,6 +1,7 @@
 package assignment1.common;
 
 import assignment1.request.HttpGet;
+import assignment1.request.HttpPost;
 import assignment1.request.HttpRequest;
 import assignment1.request.RequestMethod;
 
@@ -28,15 +29,17 @@ public class ParamHolder {
     public boolean hasFileDate;
     public String filePath;
 
-    public String url;
-
+    public String path;
+    public String host;
 
     public HttpRequest getRequestInstance() {
+
+
         if (method == RequestMethod.GET) {
             return new HttpGet(this);
         }
         else if (method == RequestMethod.POST) {
-
+            return new HttpPost(this);
         }
         return null;
     }

@@ -24,12 +24,16 @@ public class CmdParser {
         process();
     }
 
+    public ParamHolder getHolder() {
+        return holder;
+    }
+
     public void process() {
         String url = args[args.length - 1];
         String method = args[1];
         if (beginWithHttp(url) && validHttpMethod(method)) {
-            holder.url = url;
-
+            holder.path = url.substring(url.substring(7).indexOf('/'));
+            holder.host = url.substring(7, url.substring(7).indexOf('/'));
             furtherProcess();
         } else {
             // TODO: handle cmd url input error

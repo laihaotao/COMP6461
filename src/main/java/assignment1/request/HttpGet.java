@@ -12,7 +12,6 @@ import assignment1.common.ParamHolder;
 
 public class HttpGet extends HttpRequest {
 
-
     public HttpGet(ParamHolder holder) {
         super(holder);
     }

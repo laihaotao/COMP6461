@@ -11,23 +11,23 @@ package assignment1.request;
 public class RequestLine {
 
     private RequestMethod method;
-    private String url;
+    private String path;
     private String version;
 
-    public RequestLine(RequestMethod method, String url, String version) {
+    public RequestLine(RequestMethod method, String path, String version) {
         this.method = method;
-        this.url = url;
+        this.path = path;
         this.version = version;
     }
 
-    public RequestLine(RequestMethod method, String url) {
+    public RequestLine(RequestMethod method, String path) {
         this.method = method;
-        this.url = url;
+        this.path = path;
         this.version = "HTTP/1.0";
     }
 
     @Override
     public String toString() {
-        return method.toString() + " " + url + " " + version + "\r\n";
+        return method.toString() + " " + path + " " + version + "\r\n";
     }
 }

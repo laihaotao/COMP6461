@@ -12,9 +12,15 @@ import assignment1.common.ParamHolder;
 
 public abstract class HttpRequest {
 
-    public HttpRequest(ParamHolder holder) {
+    protected ParamHolder holder;
 
+    public HttpRequest(ParamHolder holder) {
+        this.holder = holder;
     }
 
     public abstract void send();
+
+    protected void buildRequest() {
+        RequestLine requestLine = new RequestLine(holder.method, holder.path);
+    }
 }
