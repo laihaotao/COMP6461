@@ -30,6 +30,7 @@ public class ParamHolder {
     public String filePath;
 
     public String host;
+    public String port;
     public String path;
     public String argsStr;
     public Map<String, String> args = new HashMap<>();

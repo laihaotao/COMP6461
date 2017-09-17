@@ -1,6 +1,9 @@
 package assignment1.request;
 
 import assignment1.common.ParamHolder;
+import assignment1.transmission.Connection;
+
+import java.io.IOException;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -20,6 +23,13 @@ public class HttpPost extends HttpRequest {
 
     @Override
     public void send() {
-
+        buildRequest();
+        String content = builder.toString();
+        try {
+            Connection connection = new Connection(holder.host, Integer.parseInt(holder.port));
+            connection.send(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

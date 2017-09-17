@@ -30,8 +30,11 @@ public abstract class HttpRequest {
             builder.append(requestHeader.toString());
         }
         builder.append("\r\n");
-
-//    \r\n
+        if (holder.hasInlineData || holder.hasFileDate) {
+            RequestBody requestBody = new RequestBody(holder.args);
+            builder.append(requestBody.toString());
+        }
+        builder.append("\r\n");
     }
 
 }

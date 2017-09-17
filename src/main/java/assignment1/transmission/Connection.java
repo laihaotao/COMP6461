@@ -35,11 +35,6 @@ public class Connection {
         connect(host, port);
     }
 
-    public Connection(ParamHolder holder) throws IOException {
-        this.buffer = ByteBuffer.allocate(BUF_SIZE);
-        connect(holder.host, 80);
-    }
-
     public void send(String req) throws IOException {
         socket.configureBlocking(true);
         Charset utf8 = StandardCharsets.UTF_8;

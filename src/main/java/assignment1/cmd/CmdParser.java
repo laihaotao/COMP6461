@@ -2,6 +2,7 @@ package assignment1.cmd;
 
 import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
+import assignment1.file.DataFileReader;
 import assignment1.request.RequestMethod;
 import com.sun.javafx.tools.packager.Param;
 import joptsimple.OptionParser;
@@ -9,6 +10,7 @@ import joptsimple.OptionSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -44,7 +46,17 @@ public class CmdParser {
         if (beginWithHttp(url) && validHttpMethod(method)) {
             String noHttpUrl = url.substring(7);
             int firstSlashIdx = noHttpUrl.indexOf('/');
-            holder.host = noHttpUrl.substring(0, firstSlashIdx);
+            String hostAndPort = noHttpUrl.substring(0, firstSlashIdx);
+            if (hostAndPort.contains(":")) {
+                int colonIdx = hostAndPort.indexOf(':');
+                holder.host = hostAndPort.substring(0, colonIdx);
+                holder.port = hostAndPort.substring(colonIdx + 1);
+            }
+            else {
+                holder.host = noHttpUrl.substring(0, firstSlashIdx);
+                holder.port = "80";
+            }
+
             if (noHttpUrl.contains("?")) {
                 int questionMark = noHttpUrl.indexOf('?');
                 holder.path = noHttpUrl.substring(firstSlashIdx, questionMark);
@@ -55,6 +67,7 @@ public class CmdParser {
             }
 
             logger.debug("request host: {}", holder.host);
+            logger.debug("request port: {}", holder.port);
             logger.debug("request path: {}", holder.path);
             logger.debug("request args: {}", holder.argsStr);
 
@@ -119,6 +132,12 @@ public class CmdParser {
             logger.debug("file data flag: {}", true);
             holder.hasFileDate = true;
             holder.filePath = (String) opts.valueOf("f");
+            try {
+                holder.argsStr = new DataFileReader(holder.filePath).read();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            parseArgs(holder.argsStr);
         }
     }
 
