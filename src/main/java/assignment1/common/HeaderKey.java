@@ -52,6 +52,7 @@ public enum HeaderKey {
 
     HeaderKey(String name, int type) {
         this.name = name;
+        this.type = type;
     }
 
     static {
