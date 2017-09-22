@@ -13,13 +13,11 @@ import assignment1.request.HttpRequest;
 
 public class HttpClient {
 
-    private String localIpAddress;
-    private int port;
-
     public static void main(String[] args) {
 
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
     }
+
 }
