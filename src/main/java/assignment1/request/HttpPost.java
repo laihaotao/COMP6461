@@ -32,4 +32,9 @@ public class HttpPost extends HttpRequest {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String toString() {
+        return builder.toString();
+    }
 }

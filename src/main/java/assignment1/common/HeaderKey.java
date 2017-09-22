@@ -18,7 +18,7 @@ public enum HeaderKey {
     REFERER("Referer", HeaderKey.REQUEST),
     FROM("From", HeaderKey.REQUEST),
     USER_AGENT("User-Agent", HeaderKey.REQUEST),
-    IF_MODIFIED_SINCE("If-Modified_Since", HeaderKey.REQUEST),
+    IF_MODIFIED_SINCE("If-Modified-Since", HeaderKey.REQUEST),
 
     // response header
     LOCATION("Location", HeaderKey.RESPONSE),
@@ -73,4 +73,5 @@ public enum HeaderKey {
             }
         }
     }
+
 }

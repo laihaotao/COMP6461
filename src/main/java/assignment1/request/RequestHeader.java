@@ -1,8 +1,11 @@
 package assignment1.request;
 
 import assignment1.common.HeaderKey;
+import assignment1.common.ParamHolder;
+import com.alibaba.fastjson.JSON;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -15,22 +18,21 @@ import java.util.HashMap;
 public class RequestHeader {
 
     private boolean isDebug = false;
+    private RequestMethod method;
     private HashMap<HeaderKey, String> map;
 
-    public RequestHeader(HashMap<HeaderKey, String> map) {
+
+    public RequestHeader(RequestMethod method, HashMap<HeaderKey, String> map) {
+        this.method = method;
         this.map = map;
     }
 
-//    public void add(HeaderKey key, String value) {
-//        map.put(key, value);
-//    }
-//
-//    public void remove(HeaderKey key) {
-//        map.remove(key.name);
-//    }
-
     @Override
     public String toString() {
+        return toUrlEncoded();
+    }
+
+    private String toUrlEncoded() {
         StringBuilder builder = new StringBuilder();
         for (HeaderKey key : map.keySet()) {
             if (isDebug) {
@@ -40,6 +42,22 @@ public class RequestHeader {
             }
         }
         return builder.toString();
+    }
+
+    private String toJson() {
+        return JSON.toJSONString(map);
+    }
+
+    private String toXml() {
+        return null;
+    }
+
+    private String toPlainText() {
+        return null;
+    }
+
+    private void addDefaultHeader() {
+
     }
 
     public void setDebug(boolean debug) {

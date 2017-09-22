@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Member;
 import java.util.List;
 
 /**
@@ -42,8 +43,8 @@ public class CmdParser {
 
 //        logger.debug("request url: {}", url);
 //        logger.debug("request method: {}", method);
-
         if (beginWithHttp(url) && validHttpMethod(method)) {
+            holder.url = url;
             String noHttpUrl = url.substring(7);
             int firstSlashIdx = noHttpUrl.indexOf('/');
             String hostAndPort = noHttpUrl.substring(0, firstSlashIdx);
@@ -51,8 +52,7 @@ public class CmdParser {
                 int colonIdx = hostAndPort.indexOf(':');
                 holder.host = hostAndPort.substring(0, colonIdx);
                 holder.port = hostAndPort.substring(colonIdx + 1);
-            }
-            else {
+            } else {
                 holder.host = noHttpUrl.substring(0, firstSlashIdx);
                 holder.port = "80";
             }
@@ -125,7 +125,7 @@ public class CmdParser {
             logger.debug("inline data flag: {}", true);
             holder.hasInlineData = true;
             holder.data = (String) opts.valueOf("d");
-            parseArgs(holder.data);
+            holder.argsStr = holder.data;
         }
 
         if (opts.has("f")) {
@@ -137,7 +137,6 @@ public class CmdParser {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            parseArgs(holder.argsStr);
         }
     }
 

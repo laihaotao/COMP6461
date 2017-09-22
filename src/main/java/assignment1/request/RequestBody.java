@@ -16,14 +16,17 @@ import java.util.Map;
 public class RequestBody {
 
     private boolean isDebug = false;
-    public Map<String, String> args = new HashMap<>();
+    public String argsStr;
 
-    public RequestBody(Map<String, String> args) {
-        this.args = args;
+    public RequestBody(String argsStr) {
+        this.argsStr = argsStr;
     }
 
     @Override
     public String toString() {
+        return argsStr;
+
+        /* comment out by Eric
         StringBuilder builder = new StringBuilder();
         for (String key : args.keySet()) {
             if (isDebug) {
@@ -34,6 +37,7 @@ public class RequestBody {
             }
         }
         return builder.toString();
+        */
     }
 
     public void setDebug(boolean debug) {

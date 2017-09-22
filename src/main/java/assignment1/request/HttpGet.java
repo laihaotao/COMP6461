@@ -30,4 +30,9 @@ public class HttpGet extends HttpRequest {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String toString() {
+        return builder.toString();
+    }
 }

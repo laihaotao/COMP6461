@@ -26,12 +26,12 @@ public abstract class HttpRequest {
         RequestLine requestLine = new RequestLine(holder.method, holder.path);
         builder.append(requestLine.toString());
         if (holder.hasHeader) {
-            RequestHeader requestHeader = new RequestHeader(holder.header);
+            RequestHeader requestHeader = new RequestHeader(holder.method, holder.header);
             builder.append(requestHeader.toString());
         }
         builder.append("\r\n");
         if (holder.hasInlineData || holder.hasFileDate) {
-            RequestBody requestBody = new RequestBody(holder.args);
+            RequestBody requestBody = new RequestBody(holder.argsStr);
             builder.append(requestBody.toString());
         }
         builder.append("\r\n");

@@ -1,6 +1,8 @@
 import assignment1.cmd.CmdParser;
 import assignment1.request.HttpRequest;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -11,6 +13,8 @@ import org.junit.Test;
 
 
 public class HttpClientTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientTest.class);
 
     @Test
     public void testGet() {
@@ -23,25 +27,29 @@ public class HttpClientTest {
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
+        logger.debug(request.toString());
+        logger.info(parser.getHolder().toString());
     }
 
     @Test
     public void testPostInlineData() {
-        String args[] = {"httpc", "get", "-v",
+        String args[] = {"httpc", "post", "-v",
                 "-h", "User-Agent:httpc",
                 "-h", "Date:somethingData",
                 "-h", "Allow:somethingAllow",
-                "-d", "user=eric&pw=1234",
+                "-d", "{\"user\":\"eric\", \"pw\":\"1234\"}",
                 "http://localhost:8080/talk"};
 
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
+        logger.debug(request.toString());
+        logger.info(parser.getHolder().toString());
     }
 
     @Test
     public void testPostFileData() {
-        String args[] = {"httpc", "get", "-v",
+        String args[] = {"httpc", "post", "-v",
                 "-h", "User-Agent:httpc",
                 "-h", "Date:somethingData",
                 "-h", "Allow:somethingAllow",
@@ -51,6 +59,8 @@ public class HttpClientTest {
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
+        logger.debug(request.toString());
+        logger.info(parser.getHolder().toString());
     }
 
     @Test
@@ -62,5 +72,6 @@ public class HttpClientTest {
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
+        logger.info(parser.getHolder().toString());
     }
 }

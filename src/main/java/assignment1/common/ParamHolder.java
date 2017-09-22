@@ -1,9 +1,7 @@
 package assignment1.common;
 
-import assignment1.request.HttpGet;
-import assignment1.request.HttpPost;
-import assignment1.request.HttpRequest;
-import assignment1.request.RequestMethod;
+import assignment1.request.*;
+import com.alibaba.fastjson.JSON;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +27,7 @@ public class ParamHolder {
     public boolean hasFileDate;
     public String filePath;
 
+    public String url;
     public String host;
     public String port;
     public String path;
@@ -44,5 +43,22 @@ public class ParamHolder {
             return new HttpPost(this);
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        OutputBean output = new OutputBean();
+        output.setArgs(args);
+        output.setHeader(header);
+        output.setUrl(url);
+        if (method == RequestMethod.POST) {
+            if (hasInlineData) {
+                output.setData(argsStr);
+            }
+            if (hasFileDate) {
+                output.setFiles(argsStr);
+            }
+        }
+        return JSON.toJSONString(output);
     }
 }
