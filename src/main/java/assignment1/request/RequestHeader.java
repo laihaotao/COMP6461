@@ -4,8 +4,12 @@ import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
 import com.alibaba.fastjson.JSON;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.TimeZone;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -29,6 +33,7 @@ public class RequestHeader {
 
     @Override
     public String toString() {
+        addDefaultHeader();
         return toUrlEncoded();
     }
 
@@ -44,20 +49,16 @@ public class RequestHeader {
         return builder.toString();
     }
 
-    private String toJson() {
-        return JSON.toJSONString(map);
-    }
-
-    private String toXml() {
-        return null;
-    }
-
-    private String toPlainText() {
-        return null;
-    }
-
     private void addDefaultHeader() {
+        // add user agent
+        map.put(HeaderKey.USER_AGENT, "COMP6461-httpc");
 
+        // add time stamp
+        Date today = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yy hh:mm:ss z");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String output = formatter.format(today);
+        map.put(HeaderKey.DATE, output);
     }
 
     public void setDebug(boolean debug) {

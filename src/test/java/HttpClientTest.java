@@ -20,7 +20,6 @@ public class HttpClientTest {
     public void testGet() {
         String args[] = {"httpc", "get", "-v",
                 "-h", "User-Agent:httpc",
-                "-h", "Date:somethingData",
                 "-h", "Allow:somethingAllow",
                 "http://localhost:8080/talk?user=eric&pw=1234"};
 
