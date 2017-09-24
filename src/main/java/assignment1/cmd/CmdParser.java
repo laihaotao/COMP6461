@@ -169,30 +169,18 @@ public class CmdParser {
         return "http://".equals(prefix);
     }
 
-    private boolean isValidRequestHeader(String key) {
-        key = getRightFormatKey(key);
-        return HeaderKey.generalHeaderMap.containsKey(key)
-                || HeaderKey.requestHeaderMap.containsKey(key)
-                || HeaderKey.entityHeaderMap.containsKey(key);
+    private boolean isValidRequestHeader(String lowercaseLetterKey) {
+        lowercaseLetterKey = HeaderKey.getRightFormatKey(lowercaseLetterKey);
+        return HeaderKey.generalHeaderMap.containsKey(lowercaseLetterKey)
+                || HeaderKey.requestHeaderMap.containsKey(lowercaseLetterKey)
+                || HeaderKey.entityHeaderMap.containsKey(lowercaseLetterKey);
     }
 
-    private boolean isValidResponseHeader(String key) {
-        key = getRightFormatKey(key);
-        return HeaderKey.generalHeaderMap.containsKey(key)
-                || HeaderKey.responseHeaderMap.containsKey(key)
-                || HeaderKey.entityHeaderMap.containsKey(key);
-    }
-
-    private String getRightFormatKey(String key) {
-        char[] chars = key.toCharArray();
-        chars[0] = Character.toUpperCase(chars[0]);
-        if (key.contains("-")) {
-            // if key has '-', we need to make the first letter after '-' to be an
-            // uppercase letter
-            int dashIdx = key.indexOf('-');
-            chars[dashIdx + 1] = Character.toUpperCase(chars[dashIdx + 1]);
-        }
-        return String.valueOf(chars);
+    private boolean isValidResponseHeader(String lowercaseLetterKey) {
+        lowercaseLetterKey = HeaderKey.getRightFormatKey(lowercaseLetterKey);
+        return HeaderKey.generalHeaderMap.containsKey(lowercaseLetterKey)
+                || HeaderKey.responseHeaderMap.containsKey(lowercaseLetterKey)
+                || HeaderKey.entityHeaderMap.containsKey(lowercaseLetterKey);
     }
 
     private void processHelp() {

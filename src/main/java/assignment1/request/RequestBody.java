@@ -2,6 +2,7 @@ package assignment1.request;
 
 import assignment1.common.HeaderKey;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,10 +17,16 @@ import java.util.Map;
 public class RequestBody {
 
     private boolean isDebug = false;
+    public int length;
     public String argsStr;
 
     public RequestBody(String argsStr) {
         this.argsStr = argsStr;
+        try {
+            this.length = argsStr.getBytes("utf-8").length;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@ This repository is the project for COMP6461 course in Concordia University, give
 The goal of A1 is following:
 
 1. Implement a mini http client according to the [HTTP 1.0 protocol](https://www.w3.org/Protocols/HTTP/1.0/spec.html#Message);
-2. Provide a command line interface for user to access the client we create in step 1;
+2. Provide a command responseLine interface for user to access the client we create in step 1;
 
 We have some additional resources:
 

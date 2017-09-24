@@ -25,7 +25,6 @@ public class RequestHeader {
     private RequestMethod method;
     private HashMap<HeaderKey, String> map;
 
-
     public RequestHeader(RequestMethod method, HashMap<HeaderKey, String> map) {
         this.method = method;
         this.map = map;

@@ -17,9 +17,9 @@ public class ConnectionTest {
     public void testSend() {
         try {
             Connection connection;
-            connection = new Connection("localhost", 8080);
+            connection = new Connection();
             String str = "hello world";
-            connection.send(str);
+            connection.send(str, "localhost", 8080);
         } catch (IOException e) {
             e.printStackTrace();
         }

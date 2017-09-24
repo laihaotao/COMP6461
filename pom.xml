@@ -17,7 +17,7 @@
         <version>1.2.38</version>
       </dependency>
 
-        <!--framework for handling command line arguments-->
+        <!--framework for handling command responseLine arguments-->
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>

@@ -70,8 +70,21 @@ public enum HeaderKey {
                     break;
                 case ENTITY:
                     entityHeaderMap.put(key.name, key);
+                    break;
             }
         }
+    }
+
+    public static String getRightFormatKey(String lowercaseLetterKey) {
+        char[] chars = lowercaseLetterKey.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        if (lowercaseLetterKey.contains("-")) {
+            // if key has '-', we need to make the first letter after '-' to be an
+            // uppercase letter
+            int dashIdx = lowercaseLetterKey.indexOf('-');
+            chars[dashIdx + 1] = Character.toUpperCase(chars[dashIdx + 1]);
+        }
+        return String.valueOf(chars);
     }
 
 }
