@@ -1,6 +1,5 @@
 package assignment1.transmission;
 
-import assignment1.request.RequestBody;
 import assignment1.response.HttpResponse;
 import assignment1.response.ResponseBody;
 import assignment1.response.ResponseHeader;
@@ -106,49 +105,60 @@ public class Connection {
         if (res.length > 1) {
             // process the response line
             line = new ResponseLine(res[0]);
+            logger.debug("response line: {}", line.toString());
             // process the response header
             header = new ResponseHeader();
             int i = 1;
             for (; i < res.length; i++) {
                 String resHeader = res[i];
                 if (resHeader.contains(":")) {
-                    String[] tmp = resHeader.split(":");
-                    String key = tmp[0];
-                    String value = tmp[1];
+                    int idx = resHeader.indexOf(':');
+                    String key = resHeader.substring(0, idx).trim();
+                    String value = resHeader.substring(idx + 1).trim();
                     header.add(key, value);
                     logger.debug("response header: {}:{}", key, value);
                 } else {
                     break;
                 }
             }
-            // it means all the remaining data is response body
-            bodyData = new StringBuilder();
-            for (; i < res.length; i++) {
-                bodyData.append(res[i]);
+            if (line.checkRedirection()) {
+//                String location = "http://www.google.ca/";
+                String location = header.get("Location");
+//                String location = "http://www.google.ca/?gfe_rd=cr&dcr=0&ei=ypLWWcS8B8jZ8gfHprzYDw";
+                return new HttpResponse(true, location);
             }
-            buffer.clear();
 
-            try {
-                while ((readedLen = socket.read(buffer)) != -1) {
-                    curBuffer.flip();
-                    // get data from buffer
-                    curBuffer.get(bytes, 0, readedLen);
-                    String data1 = new String(bytes, 0, readedLen);
-                    bodyData.append(data1);
-                    buffer.clear();
+            else {
+                // it means all the remaining data is response body
+                bodyData = new StringBuilder();
+                for (; i < res.length; i++) {
+                    bodyData.append(res[i]);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                buffer.clear();
+
+                try {
+                    while ((readedLen = socket.read(buffer)) != -1) {
+                        curBuffer.flip();
+                        // get data from buffer
+                        curBuffer.get(bytes, 0, readedLen);
+                        String data1 = new String(bytes, 0, readedLen);
+                        bodyData.append(data1);
+                        buffer.clear();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 //            logger.debug("Response body data: {}", bodyData);
-            body = new ResponseBody(bodyData.toString());
-            response = new HttpResponse(line, header, body);
+                body = new ResponseBody(bodyData.toString());
+                response = new HttpResponse(line, header, body);
+            }
+            if (fileName != null) {
+                // need to write the body to a separate file
+                outputToFile(bodyData.toString());
+            }
+            return response;
         }
-        if (fileName != null && bodyData != null) {
-            // need to write the body to a separate file
-            outputToFile(bodyData.toString());
-        }
-        return response;
+        return null;
     }
 
     private void connect(String host, int port) throws IOException {

@@ -10,9 +10,16 @@ package assignment1.response;
 
 public class HttpResponse {
 
+    public boolean isRedirected;
+    public String location;
     private ResponseLine responseLine;
     private ResponseHeader responseHeader;
     private ResponseBody responseBody;
+
+    public HttpResponse(boolean isRedirected, String location) {
+        this.isRedirected = isRedirected;
+        this.location = location;
+    }
 
     public HttpResponse(ResponseLine responseLine,
                         ResponseHeader responseHeader,

@@ -21,6 +21,17 @@ public class ResponseLine {
         this.statusMsg = parts[2];
     }
 
+    public boolean checkRedirection() {
+        switch (statusCode) {
+            case 300:
+            case 301:
+            case 302:
+            case 304:
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return version + " " + statusCode + " " + statusMsg;

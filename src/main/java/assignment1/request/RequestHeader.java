@@ -51,6 +51,7 @@ public class RequestHeader {
     private void addDefaultHeader() {
         // add user agent
         map.put(HeaderKey.USER_AGENT, "COMP6461-httpc");
+//        map.put(HeaderKey.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         // add time stamp
         Date today = new Date();

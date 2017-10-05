@@ -171,7 +171,7 @@ public class CmdParser {
     }
 
     private boolean beginWithHttp(String url) {
-        String prefix = url.substring(0, 7);
+        String prefix = url.trim().substring(0, 7);
 //        logger.debug("first 7 characters of user input URL: {}", prefix);
         return "http://".equals(prefix);
     }
