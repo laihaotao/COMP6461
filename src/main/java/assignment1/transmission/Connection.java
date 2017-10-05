@@ -86,9 +86,11 @@ public class Connection {
         int readedLen = socket.read(curBuffer);
         if (readedLen < BUF_SIZE) {
             // it means all data are read in one shot
+            // !!!!!!!! remember to FLIP !!!!!!!!
             curBuffer.flip();
             curBuffer.get(bytes, 0, readedLen);
-            String data = new String(bytes);
+            String data = new String(bytes, 0, readedLen);
+
             // split the string by "\r\n"
             String[] res = data.split("[\r\n]+");
             logger.debug("after splitting the response by '\r\n', we have {} part", res.length);
@@ -127,7 +129,7 @@ public class Connection {
 
             }
         } else {
-
+            // have to read multiple time
         }
     }
 

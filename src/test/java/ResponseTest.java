@@ -35,7 +35,10 @@ public class ResponseTest {
         final int BUF_SIZE = 1024;
         ByteBuffer buffer_1 = ByteBuffer.allocate(BUF_SIZE);
 
-        String str = "hello world";
+        String str = "HTTP/1.O 200 OK\r\n"
+                + "Content-Length: 11\r\n"
+                + "\r\n"
+                + "{\"user\":\"eric\", \"pw\":\"1234\"}";
         byte[] strBytes = str.getBytes();
         logger.debug("strBtyes: {}", strBytes);
 
@@ -46,7 +49,7 @@ public class ResponseTest {
         curBuffer.get(bytes, 0, strBytes.length);
         logger.debug("bytes: {}", bytes);
 
-        String data = new String(bytes);
+        String data = new String(bytes, 0, strBytes.length);
         logger.debug("current data without any process: {}", data);
         /*
         // split the string by "\r\n"

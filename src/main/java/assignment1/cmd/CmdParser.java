@@ -38,7 +38,6 @@ public class CmdParser {
     }
 
 
-
     private void process() {
         String url = args[args.length - 1];
         String method = args[1];
@@ -189,10 +188,10 @@ public class CmdParser {
         String get = "get";
         String post = "post";
 
-        if (appCmd.equals(args[0]) && help.equals(args[1])) {
-            if (get.equals(args[2])) {
+        if (args.length >= 2 && appCmd.equals(args[0]) && help.equals(args[1])) {
+            if (args.length == 3 && get.equals(args[2])) {
                 printHelpGet();
-            } else if (post.equals(args[2])) {
+            } else if (args.length == 3 && post.equals(args[2])) {
                 printHelpPost();
             } else {
                 printHelp();
