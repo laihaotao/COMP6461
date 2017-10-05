@@ -1,5 +1,6 @@
 import assignment1.cmd.CmdParser;
 import assignment1.request.HttpRequest;
+import assignment1.response.HttpResponse;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,5 +73,6 @@ public class HttpClientTest {
         HttpRequest request = parser.getHolder().getRequestInstance();
         request.send();
         logger.info(parser.getHolder().toString());
+        HttpResponse response = request.getConnection().receive();
     }
 }

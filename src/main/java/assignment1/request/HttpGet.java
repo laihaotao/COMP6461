@@ -24,7 +24,7 @@ public class HttpGet extends HttpRequest {
         buildRequest();
         String content = builder.toString();
         try {
-            Connection connection = new Connection();
+            connection = new Connection();
             connection.send(content, holder.host, Integer.parseInt(holder.port));
         } catch (IOException e) {
             e.printStackTrace();

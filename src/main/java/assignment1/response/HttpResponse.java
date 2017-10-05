@@ -14,30 +14,11 @@ public class HttpResponse {
     private ResponseHeader responseHeader;
     private ResponseBody responseBody;
 
-    public HttpResponse() {
-    }
-
-    public ResponseLine getResponseLine() {
-        return responseLine;
-    }
-
-    public void setResponseLine(ResponseLine responseLine) {
+    public HttpResponse(ResponseLine responseLine,
+                        ResponseHeader responseHeader,
+                        ResponseBody responseBody) {
         this.responseLine = responseLine;
-    }
-
-    public ResponseHeader getResponseHeader() {
-        return responseHeader;
-    }
-
-    public void setResponseHeader(ResponseHeader responseHeader) {
         this.responseHeader = responseHeader;
-    }
-
-    public ResponseBody getResponseBody() {
-        return responseBody;
-    }
-
-    public void setResponseBody(ResponseBody responseBody) {
         this.responseBody = responseBody;
     }
 }

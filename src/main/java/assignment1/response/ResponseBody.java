@@ -14,7 +14,9 @@ import java.util.HashMap;
 
 public class ResponseBody {
 
-    public ResponseBody() {
+    private String content;
 
+    public ResponseBody(String str) {
+        this.content = str;
     }
 }

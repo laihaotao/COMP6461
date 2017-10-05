@@ -2,6 +2,7 @@ package assignment1.request;
 
 import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
+import assignment1.transmission.Connection;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -15,6 +16,7 @@ public abstract class HttpRequest {
 
     protected ParamHolder holder;
     protected StringBuilder builder;
+    protected Connection connection;
 
     public HttpRequest(ParamHolder holder) {
         this.holder = holder;
@@ -46,4 +48,7 @@ public abstract class HttpRequest {
 //        builder.append("\r\n");
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
 }
