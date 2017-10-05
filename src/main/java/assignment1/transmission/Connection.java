@@ -8,6 +8,9 @@ import assignment1.response.ResponseLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -33,8 +36,15 @@ public class Connection {
     private ByteBuffer buffer;
     private SocketChannel socket;
 
+    private String fileName;
+
     public Connection() throws IOException {
         this.buffer = ByteBuffer.allocate(BUF_SIZE);
+    }
+
+    public Connection(String fileName) {
+        this.buffer = ByteBuffer.allocate(BUF_SIZE);
+        this.fileName = fileName;
     }
 
     public void send(String req, String host, int port) throws IOException {
@@ -74,6 +84,7 @@ public class Connection {
         ResponseLine line;
         ResponseHeader header;
         ResponseBody body;
+        StringBuilder bodyData = null;
         byte[] bytes = new byte[BUF_SIZE];
         ByteBuffer curBuffer = buffer;
 
@@ -105,14 +116,13 @@ public class Connection {
                     String key = tmp[0];
                     String value = tmp[1];
                     header.add(key, value);
-//                    logger.debug("response header: {}:{}", key, value);
+                    logger.debug("response header: {}:{}", key, value);
                 } else {
-                    logger.error("Invalid response header format");
                     break;
                 }
             }
             // it means all the remaining data is response body
-            StringBuilder bodyData = new StringBuilder();
+            bodyData = new StringBuilder();
             for (; i < res.length; i++) {
                 bodyData.append(res[i]);
             }
@@ -134,6 +144,10 @@ public class Connection {
             body = new ResponseBody(bodyData.toString());
             response = new HttpResponse(line, header, body);
         }
+        if (fileName != null && bodyData != null) {
+            // need to write the body to a separate file
+            outputToFile(bodyData.toString());
+        }
         return response;
     }
 
@@ -143,5 +157,16 @@ public class Connection {
         socket.connect(remote);
         logger.debug("connect to: {}", socket.getRemoteAddress());
         logger.debug("local address: {}", socket.getLocalAddress());
+    }
+
+    private void outputToFile(String body) {
+        File file = new File("./" + fileName);
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+            writer.write(body);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

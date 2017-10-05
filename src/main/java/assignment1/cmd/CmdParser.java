@@ -95,6 +95,9 @@ public class CmdParser {
         parser.accepts("f", "source file of request")
                 .withOptionalArg();
 
+        parser.accepts("o", "output result to a separate file")
+                .withOptionalArg();
+
         // get the optional parameter set, if the parameter with the specified
         // prefix, it will be null stored in the variable
         OptionSet opts = parser.parse(args);
@@ -138,6 +141,11 @@ public class CmdParser {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (opts.has("o")) {
+            holder.hasOutputFile = true;
+            holder.outputFileName = (String) opts.valueOf("o");
         }
     }
 

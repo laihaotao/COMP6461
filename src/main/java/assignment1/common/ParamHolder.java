@@ -34,15 +34,11 @@ public class ParamHolder {
     public String argsStr;
     public Map<String, String> args = new HashMap<>();
 
+    public boolean hasOutputFile;
+    public String outputFileName;
 
     public HttpRequest getRequestInstance() {
-        if (method == RequestMethod.GET) {
-            return new HttpGet(this);
-        }
-        else if (method == RequestMethod.POST) {
-            return new HttpPost(this);
-        }
-        return null;
+        return new HttpRequest(this);
     }
 
     @Override

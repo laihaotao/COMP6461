@@ -4,6 +4,8 @@ import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
 import assignment1.transmission.Connection;
 
+import java.io.IOException;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-10
@@ -12,7 +14,7 @@ import assignment1.transmission.Connection;
  */
 
 
-public abstract class HttpRequest {
+public class HttpRequest {
 
     protected ParamHolder holder;
     protected StringBuilder builder;
@@ -23,7 +25,21 @@ public abstract class HttpRequest {
         this.builder = new StringBuilder();
     }
 
-    public abstract void send();
+    public void send() {
+        buildRequest();
+        String content = builder.toString();
+        try {
+            if (holder.hasOutputFile) {
+                connection = new Connection(holder.outputFileName);
+            }
+            else {
+                connection = new Connection();
+            }
+            connection.send(content, holder.host, Integer.parseInt(holder.port));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     protected void buildRequest() {
         RequestBody requestBody = null;

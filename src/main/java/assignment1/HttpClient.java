@@ -3,10 +3,6 @@ package assignment1;
 import assignment1.cmd.CmdParser;
 import assignment1.request.HttpRequest;
 import assignment1.response.HttpResponse;
-import assignment1.response.ResponseBody;
-import assignment1.transmission.Connection;
-
-import java.io.IOException;
 
 /**
  * Author:  Eric(Haotao) Lai
