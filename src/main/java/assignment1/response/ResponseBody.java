@@ -19,4 +19,9 @@ public class ResponseBody {
     public ResponseBody(String str) {
         this.content = str;
     }
+
+    @Override
+    public String toString() {
+        return content;
+    }
 }

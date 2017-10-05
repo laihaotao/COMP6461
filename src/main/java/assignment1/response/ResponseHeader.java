@@ -14,7 +14,6 @@ import java.util.HashMap;
 
 public class ResponseHeader {
 
-    private String contentType;
     private HashMap<String, String> map;
 
     public ResponseHeader() {
@@ -29,5 +28,14 @@ public class ResponseHeader {
     public String get(String key) {
         key = HeaderKey.getRightFormatKey(key.toLowerCase());
         return map.get(key);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (String key : map.keySet()) {
+                builder.append(key).append(": ").append(map.get(key)).append("\n");
+        }
+        return builder.toString();
     }
 }

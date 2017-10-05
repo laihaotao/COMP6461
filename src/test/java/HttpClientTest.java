@@ -66,7 +66,7 @@ public class HttpClientTest {
     @Test
     public void testBaidu() {
         String args[] = {"httpc", "get", "-v",
-                "-o", "baiduIndex.html",
+//                "-o", "baiduIndex.html",
                 "-h", "User-Agent:httpc",
                 "http://www.baidu.com/"};
 
@@ -75,5 +75,6 @@ public class HttpClientTest {
         request.send();
         logger.info(parser.getHolder().toString());
         HttpResponse response = request.getConnection().receive();
+        logger.info(response.toString());
     }
 }

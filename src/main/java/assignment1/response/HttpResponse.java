@@ -21,4 +21,9 @@ public class HttpResponse {
         this.responseHeader = responseHeader;
         this.responseBody = responseBody;
     }
+
+    @Override
+    public String toString() {
+        return responseLine.toString() + "\r\n" + responseHeader.toString() + "\r\n" + responseBody.toString();
+    }
 }
