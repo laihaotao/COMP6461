@@ -1,14 +1,10 @@
 package assignment1.request;
 
-import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
-import com.alibaba.fastjson.JSON;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -22,12 +18,10 @@ import java.util.TimeZone;
 public class RequestHeader {
 
     private boolean isDebug = false;
-    private RequestMethod method;
-    private HashMap<HeaderKey, String> map;
+    private ParamHolder holder;
 
-    public RequestHeader(RequestMethod method, HashMap<HeaderKey, String> map) {
-        this.method = method;
-        this.map = map;
+    public RequestHeader(ParamHolder holder) {
+        this.holder = holder;
     }
 
     @Override
@@ -38,27 +32,28 @@ public class RequestHeader {
 
     private String toUrlEncoded() {
         StringBuilder builder = new StringBuilder();
-        for (HeaderKey key : map.keySet()) {
-            if (isDebug) {
-                builder.append(key.name).append(": ").append(map.get(key)).append("\n");
-            } else {
-                builder.append(key.name).append(": ").append(map.get(key)).append("\r\n");
-            }
+        for (String key : holder.header.keySet()) {
+            builder.append(key).append(": ").append(holder.header.get(key)).append("\r\n");
         }
         return builder.toString();
     }
 
     private void addDefaultHeader() {
-        // add user agent
-        map.put(HeaderKey.USER_AGENT, "COMP6461-httpc");
-//        map.put(HeaderKey.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
-
+        // if user input header does not contain user agent,
+        // add default user agent
+        if (!holder.header.containsKey("User-Agent")) {
+            holder.header.put("User-Agent", "COMP6461-httpc");
+        }
+//        if (!holder.header.containsKey("Host")) {
+//            holder.header.put("Host", holder.host);
+//        }
         // add time stamp
         Date today = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yy hh:mm:ss z");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         String output = formatter.format(today);
-        map.put(HeaderKey.DATE, output);
+        holder.header.put("Date", output);
+        holder.header.put("Accept", "*/*");
     }
 
     public void setDebug(boolean debug) {

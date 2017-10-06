@@ -1,5 +1,4 @@
 import assignment1.cmd.CmdParser;
-import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
 import assignment1.request.RequestMethod;
 import org.junit.Test;
@@ -34,10 +33,10 @@ public class CmdParserTest {
         assertTrue(holder.isVerbose);
         assertTrue(holder.hasHeader);
 
-        Map<HeaderKey, String> expectedHeader = new HashMap<>();
-        expectedHeader.put(HeaderKey.USER_AGENT, "httpc");
-        expectedHeader.put(HeaderKey.DATE, "somethingData");
-        expectedHeader.put(HeaderKey.ALLOW, "somethingAllow");
+        Map<String, String> expectedHeader = new HashMap<>();
+        expectedHeader.put("User-Agent", "httpc");
+        expectedHeader.put("Date", "somethingData");
+        expectedHeader.put("Allow", "somethingAllow");
         assertEquals(expectedHeader, holder.header);
 
         assertEquals("laihaotao.me", holder.host);
@@ -66,10 +65,10 @@ public class CmdParserTest {
         assertTrue(holder.isVerbose);
         assertTrue(holder.hasHeader);
 
-        Map<HeaderKey, String> expectedHeader = new HashMap<>();
-        expectedHeader.put(HeaderKey.USER_AGENT, "httpc");
-        expectedHeader.put(HeaderKey.DATE, "somethingData");
-        expectedHeader.put(HeaderKey.ALLOW, "somethingAllow");
+        Map<String, String> expectedHeader = new HashMap<>();
+        expectedHeader.put("User-Agent", "httpc");
+        expectedHeader.put("Date", "somethingData");
+        expectedHeader.put("Allow", "somethingAllow");
         assertEquals(expectedHeader, holder.header);
 
         assertEquals("laihaotao.me", holder.host);
@@ -96,10 +95,10 @@ public class CmdParserTest {
         assertTrue(holder.isVerbose);
         assertTrue(holder.hasHeader);
 
-        Map<HeaderKey, String> expectedHeader = new HashMap<>();
-        expectedHeader.put(HeaderKey.USER_AGENT, "httpc");
-        expectedHeader.put(HeaderKey.DATE, "somethingData");
-        expectedHeader.put(HeaderKey.ALLOW, "somethingAllow");
+        Map<String, String> expectedHeader = new HashMap<>();
+        expectedHeader.put("User-Agent", "httpc");
+        expectedHeader.put("Date", "somethingData");
+        expectedHeader.put("Allow", "somethingAllow");
         assertEquals(expectedHeader, holder.header);
 
         assertEquals("laihaotao.me", holder.host);

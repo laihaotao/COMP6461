@@ -1,7 +1,5 @@
 package assignment1.request;
 
-import assignment1.common.HeaderKey;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +17,7 @@ public class OutputBean {
     private String data;
     private String files;
     private String url;
-    private HashMap<HeaderKey, String> header = new HashMap<>();
+    private HashMap<String, String> header = new HashMap<>();
     private Map<String, String> args = new HashMap<>();
 
     public RequestMethod getMethod() {
@@ -54,11 +52,11 @@ public class OutputBean {
         this.url = url;
     }
 
-    public HashMap<HeaderKey, String> getHeader() {
+    public HashMap<String, String> getHeader() {
         return header;
     }
 
-    public void setHeader(HashMap<HeaderKey, String> header) {
+    public void setHeader(HashMap<String, String> header) {
         this.header = header;
     }
 

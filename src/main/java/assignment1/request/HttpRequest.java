@@ -1,6 +1,5 @@
 package assignment1.request;
 
-import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
 import assignment1.transmission.Connection;
 
@@ -22,26 +21,22 @@ public class HttpRequest {
 
     public HttpRequest(ParamHolder holder) {
         this.holder = holder;
-        this.builder = new StringBuilder();
     }
 
     public void send() {
         buildRequest();
         String content = builder.toString();
         try {
-            if (holder.hasOutputFile) {
-                connection = new Connection(holder.outputFileName);
-            }
-            else {
-                connection = new Connection();
-            }
+            if (holder.hasOutputFile) {connection = new Connection(holder.outputFileName);}
+            else {connection = new Connection();}
             connection.send(content, holder.host, Integer.parseInt(holder.port));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected void buildRequest() {
+    private void buildRequest() {
+        builder = new StringBuilder();
         RequestBody requestBody = null;
         RequestLine requestLine = new RequestLine(holder.method, holder.path);
         builder.append(requestLine.toString());
@@ -49,11 +44,11 @@ public class HttpRequest {
         if (holder.hasInlineData || holder.hasFileDate) {
             // if we are in a post request, need to set the Content-Length header
             requestBody = new RequestBody(holder.argsStr);
-            holder.header.put(HeaderKey.CONTENT_LENGTH, String.valueOf(requestBody.length));
+            holder.header.put("Content-Length", String.valueOf(requestBody.length));
         }
 
-        if (holder.hasHeader) {
-            RequestHeader requestHeader = new RequestHeader(holder.method, holder.header);
+        if (!holder.header.isEmpty()) {
+            RequestHeader requestHeader = new RequestHeader(holder);
             builder.append(requestHeader.toString());
         }
         builder.append("\r\n");

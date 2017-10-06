@@ -20,7 +20,7 @@ public class ParamHolder {
     public boolean isVerbose;
 
     public boolean hasHeader;
-    public HashMap<HeaderKey, String> header = new HashMap<>();
+    public HashMap<String, String> header = new HashMap<>();
 
     public boolean hasInlineData;
     public String data;

@@ -1,7 +1,5 @@
 package assignment1.response;
 
-import assignment1.common.HeaderKey;
-
 import java.util.HashMap;
 
 /**
@@ -21,12 +19,10 @@ public class ResponseHeader {
     }
 
     public void add(String key, String value) {
-        key = HeaderKey.getRightFormatKey(key.toLowerCase());
         map.put(key, value);
     }
 
     public String get(String key) {
-        key = HeaderKey.getRightFormatKey(key.toLowerCase());
         return map.get(key);
     }
 

@@ -1,6 +1,5 @@
 package assignment1.cmd;
 
-import assignment1.common.HeaderKey;
 import assignment1.common.ParamHolder;
 import assignment1.file.DataFileReader;
 import assignment1.request.RequestMethod;
@@ -37,7 +36,6 @@ public class CmdParser {
         return holder;
     }
 
-
     private void process() {
         String url = args[args.length - 1];
         String method = args[1];
@@ -57,7 +55,7 @@ public class CmdParser {
                 holder.host = noHttpUrl.substring(0, firstSlashIdx);
                 holder.port = "80";
             }
-
+            holder.header.put("Host", holder.host);
             if (noHttpUrl.contains("?")) {
                 int questionMark = noHttpUrl.indexOf('?');
                 holder.path = noHttpUrl.substring(firstSlashIdx, questionMark);
@@ -112,11 +110,8 @@ public class CmdParser {
                 if (pair.contains(":")) {
                     String key = pair.split(":")[0];
                     String value = pair.split(":")[1];
-                    if (isValidRequestHeader(key.toLowerCase())) {
-                        key = key.replace('-', '_');
-                        holder.header.put(HeaderKey.valueOf(key.toUpperCase()), value);
-                        logger.debug("request header pair -> {}: {}", key, value);
-                    }
+                    holder.header.put(key, value);
+                    logger.debug("request header pair -> {}: {}", key, value);
                 } else {
                     // TODO: handle cmd header input error
                     logger.error("Invalid format of your header key value pair, please check " +
@@ -174,20 +169,6 @@ public class CmdParser {
         String prefix = url.trim().substring(0, 7);
 //        logger.debug("first 7 characters of user input URL: {}", prefix);
         return "http://".equals(prefix);
-    }
-
-    private boolean isValidRequestHeader(String lowercaseLetterKey) {
-        lowercaseLetterKey = HeaderKey.getRightFormatKey(lowercaseLetterKey);
-        return HeaderKey.generalHeaderMap.containsKey(lowercaseLetterKey)
-                || HeaderKey.requestHeaderMap.containsKey(lowercaseLetterKey)
-                || HeaderKey.entityHeaderMap.containsKey(lowercaseLetterKey);
-    }
-
-    private boolean isValidResponseHeader(String lowercaseLetterKey) {
-        lowercaseLetterKey = HeaderKey.getRightFormatKey(lowercaseLetterKey);
-        return HeaderKey.generalHeaderMap.containsKey(lowercaseLetterKey)
-                || HeaderKey.responseHeaderMap.containsKey(lowercaseLetterKey)
-                || HeaderKey.entityHeaderMap.containsKey(lowercaseLetterKey);
     }
 
     private void processHelp() {

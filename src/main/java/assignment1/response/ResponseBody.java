@@ -1,9 +1,5 @@
 package assignment1.response;
 
-import assignment1.common.HeaderKey;
-
-import java.util.HashMap;
-
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-23

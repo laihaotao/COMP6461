@@ -32,21 +32,19 @@ public class Connection {
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
     private final int BUF_SIZE = 1024;
 
-    private ByteBuffer buffer;
     private SocketChannel socket;
 
     private String fileName;
 
     public Connection() throws IOException {
-        this.buffer = ByteBuffer.allocate(BUF_SIZE);
     }
 
     public Connection(String fileName) {
-        this.buffer = ByteBuffer.allocate(BUF_SIZE);
         this.fileName = fileName;
     }
 
     public void send(String req, String host, int port) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(BUF_SIZE);
         connect(host, port);
         socket.configureBlocking(true);
         Charset utf8 = StandardCharsets.UTF_8;
@@ -79,29 +77,30 @@ public class Connection {
         // the idea here is we need to read the header and parse them to
         // get the Content-Length's value and decide how many time I need
         // to read for the remaining message
+        ByteBuffer buffer = ByteBuffer.allocate(BUF_SIZE);
         HttpResponse response = null;
+        StringBuilder bodyData = null;
         ResponseLine line;
         ResponseHeader header;
         ResponseBody body;
-        StringBuilder bodyData = null;
         byte[] bytes = new byte[BUF_SIZE];
-        ByteBuffer curBuffer = buffer;
 
+        buffer.clear();
         // read data into buffer
         int readedLen = 0;
         try {
-            readedLen = socket.read(curBuffer);
+            readedLen = socket.read(buffer);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        curBuffer.flip();
+        buffer.flip();
         // get data from buffer
-        curBuffer.get(bytes, 0, readedLen);
+        buffer.get(bytes, 0, readedLen);
         String data = new String(bytes, 0, readedLen);
 
         // split the string by "\r\n"
         String[] res = data.split("[\r\n]+");
-        logger.debug("after splitting the response by '\r\n', we have {} part", res.length);
+        logger.debug("after splitting the response by '\\r\\n', we have {} part", res.length);
         if (res.length > 1) {
             // process the response line
             line = new ResponseLine(res[0]);
@@ -122,9 +121,8 @@ public class Connection {
                 }
             }
             if (line.checkRedirection()) {
-//                String location = "http://www.google.ca/";
                 String location = header.get("Location");
-//                String location = "http://www.google.ca/?gfe_rd=cr&dcr=0&ei=ypLWWcS8B8jZ8gfHprzYDw";
+                logger.warn("redirect to {}", location);
                 return new HttpResponse(true, location);
             }
 
@@ -138,9 +136,9 @@ public class Connection {
 
                 try {
                     while ((readedLen = socket.read(buffer)) != -1) {
-                        curBuffer.flip();
+                        buffer.flip();
                         // get data from buffer
-                        curBuffer.get(bytes, 0, readedLen);
+                        buffer.get(bytes, 0, readedLen);
                         String data1 = new String(bytes, 0, readedLen);
                         bodyData.append(data1);
                         buffer.clear();

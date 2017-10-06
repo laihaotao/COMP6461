@@ -15,7 +15,6 @@ import assignment1.response.HttpResponse;
 public class HttpClient {
 
     public static void main(String[] args) {
-
         int times = 0, max = 5;
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
@@ -27,10 +26,12 @@ public class HttpClient {
             parser = new CmdParser(args);
             request = parser.getHolder().getRequestInstance();
             request.send();
+            System.out.println(parser.getHolder().toString());
             response = request.getConnection().receive();
             times += 1;
         }
-        if (!response.isRedirected) System.out.println(response.toString());
+        if (!response.isRedirected) {System.out.println(response.toString());}
+        else {System.out.println("Exceed the redirection limit");}
     }
 
 }

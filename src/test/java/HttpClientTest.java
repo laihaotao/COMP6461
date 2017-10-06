@@ -66,9 +66,8 @@ public class HttpClientTest {
     @Test
     public void testBaidu() {
         String args[] = {"httpc", "get", "-v",
-//                "-o", "baiduIndex.html",
                 "-h", "User-Agent:httpc",
-                "http://www.baidu.com/"};
+                "http://www.httpbin.org/"};
 
         CmdParser parser = new CmdParser(args);
         HttpRequest request = parser.getHolder().getRequestInstance();
