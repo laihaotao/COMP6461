@@ -1,3 +1,5 @@
+package dev;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -12,7 +14,7 @@ class test {
     public static void main(String[] args) throws IOException {
 //        OptionParser parser = new OptionParser();
 //
-//        parser.accepts( "v", "for test")
+//        parser.accepts( "v", "for dev.test")
 //                .withOptionalArg();
 //        parser.accepts("h", "request head")
 //                .withOptionalArg()

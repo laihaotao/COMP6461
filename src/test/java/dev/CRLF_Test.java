@@ -1,3 +1,5 @@
+package dev;
+
 import org.junit.Test;
 
 /**
@@ -10,7 +12,7 @@ import org.junit.Test;
 
 public class CRLF_Test {
 
-    @Test
+//    @Test
     public void test1() {
         System.out.println("================");
         System.out.println("line 1");
@@ -18,7 +20,7 @@ public class CRLF_Test {
         System.out.println("line 2");
     }
 
-    @Test
+//    @Test
     public void test2() {
         System.out.println("================");
         System.out.println("line 1");
