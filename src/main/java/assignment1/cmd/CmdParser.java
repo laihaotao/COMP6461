@@ -40,8 +40,8 @@ public class CmdParser {
         String url = args[args.length - 1];
         String method = args[1];
 
-//        logger.debug("request url: {}", url);
-//        logger.debug("request method: {}", method);
+//        logger.trace("request url: {}", url);
+//        logger.trace("request method: {}", method);
         if (beginWithHttp(url) && validHttpMethod(method)) {
             holder.url = url;
             String noHttpUrl = url.substring(7);
@@ -65,10 +65,10 @@ public class CmdParser {
                 holder.path = noHttpUrl.substring(firstSlashIdx);
             }
 
-            logger.debug("request host: {}", holder.host);
-            logger.debug("request port: {}", holder.port);
-            logger.debug("request path: {}", holder.path);
-            logger.debug("request args: {}", holder.argsStr);
+            logger.trace("request host: {}", holder.host);
+            logger.trace("request port: {}", holder.port);
+            logger.trace("request path: {}", holder.path);
+            logger.trace("request args: {}", holder.argsStr);
 
             furtherProcess();
         } else {
@@ -100,20 +100,19 @@ public class CmdParser {
         // prefix, it will be null stored in the variable
         OptionSet opts = parser.parse(args);
         holder.isVerbose = opts.has("v");
-        logger.debug("verbose flag: {}", holder.isVerbose);
+        logger.trace("verbose flag: {}", holder.isVerbose);
 
         if (opts.has("h")) {
             holder.hasHeader = true;
-            logger.debug("header flag: {}", true);
+            logger.trace("header flag: {}", true);
             List<String> tmpList = (List<String>) opts.valuesOf("h");
             for (String pair : tmpList) {
                 if (pair.contains(":")) {
                     String key = pair.split(":")[0];
                     String value = pair.split(":")[1];
                     holder.header.put(key, value);
-                    logger.debug("request header pair -> {}: {}", key, value);
+                    logger.trace("request header pair -> {}: {}", key, value);
                 } else {
-                    // TODO: handle cmd header input error
                     logger.error("Invalid format of your header key value pair, please check " +
                             "again");
                 }
@@ -121,14 +120,14 @@ public class CmdParser {
         }
 
         if (opts.has("d")) {
-            logger.debug("inline data flag: {}", true);
+            logger.trace("inline data flag: {}", true);
             holder.hasInlineData = true;
             holder.data = (String) opts.valueOf("d");
             holder.argsStr = holder.data;
         }
 
         if (opts.has("f")) {
-            logger.debug("file data flag: {}", true);
+            logger.trace("file data flag: {}", true);
             holder.hasFileDate = true;
             holder.filePath = (String) opts.valueOf("f");
             try {
@@ -149,7 +148,7 @@ public class CmdParser {
         for (String s : pair) {
             String[] res = s.split("=");
             holder.args.put(res[0], res[1]);
-            logger.debug("http get request argument: {}={}", res[0], res[1]);
+            logger.trace("http get request argument: {}={}", res[0], res[1]);
         }
     }
 
@@ -167,7 +166,7 @@ public class CmdParser {
 
     private boolean beginWithHttp(String url) {
         String prefix = url.trim().substring(0, 7);
-//        logger.debug("first 7 characters of user input URL: {}", prefix);
+//        logger.trace("first 7 characters of user input URL: {}", prefix);
         return "http://".equals(prefix);
     }
 

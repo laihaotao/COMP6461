@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-17
@@ -65,17 +67,17 @@ public class HttpClientTest {
 //        logger.info(parser.getHolder().toString());
 //    }
 
-    @Test
-    public void testBaidu() {
-        String args[] = {"httpc", "get", "-v",
-                "-h", "User-Agent:httpc",
-                "http://www.httpbin.org/"};
-
-        CmdParser parser = new CmdParser(args);
-        HttpRequest request = parser.getHolder().getRequestInstance();
-        request.send();
-        logger.info(parser.getHolder().toString());
-        HttpResponse response = request.getConnection().receive();
-        logger.info(response.toString());
-    }
+    //@Test
+//    public void testBaidu() throws IOException {
+//        String args[] = {"httpc", "get", "-v",
+//                "-h", "User-Agent:httpc",
+//                "http://www.httpbin.org/"};
+//
+//        CmdParser parser = new CmdParser(args);
+//        HttpRequest request = parser.getHolder().getRequestInstance();
+//        request.send();
+//        logger.info(parser.getHolder().toString());
+//        HttpResponse response = request.getConnection().receive();
+//        logger.info(response.toString());
+//    }
 }

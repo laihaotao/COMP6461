@@ -24,6 +24,10 @@ public class RequestHeader {
         this.holder = holder;
     }
 
+    public String printHeader() {
+        return toUrlEncoded();
+    }
+
     @Override
     public String toString() {
         addDefaultHeader();

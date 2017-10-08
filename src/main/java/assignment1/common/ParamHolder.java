@@ -37,10 +37,6 @@ public class ParamHolder {
     public boolean hasOutputFile;
     public String outputFileName;
 
-    public HttpRequest getRequestInstance() {
-        return new HttpRequest(this);
-    }
-
     @Override
     public String toString() {
         OutputBean output = new OutputBean();
@@ -57,4 +53,5 @@ public class ParamHolder {
         }
         return JSON.toJSONString(output);
     }
+
 }

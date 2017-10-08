@@ -1,5 +1,8 @@
 package assignment1.response;
 
+import assignment1.common.ParamHolder;
+import assignment1.transmission.Connection;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-10
@@ -16,9 +19,15 @@ public class HttpResponse {
     private ResponseHeader responseHeader;
     private ResponseBody responseBody;
 
-    public HttpResponse(boolean isRedirected, String location) {
+    public HttpResponse(boolean isRedirected, String location,
+                        ResponseLine responseLine,
+                        ResponseHeader responseHeader,
+                        ResponseBody responseBody) {
         this.isRedirected = isRedirected;
         this.location = location;
+        this.responseLine = responseLine;
+        this.responseHeader = responseHeader;
+        this.responseBody = responseBody;
     }
 
     public HttpResponse(ResponseLine responseLine,
@@ -31,6 +40,10 @@ public class HttpResponse {
 
     @Override
     public String toString() {
-        return responseLine.toString() + "\r\n" + responseHeader.toString() + "\r\n" + responseBody.toString();
+        String str = "";
+        if (responseLine != null) str += responseLine.toString() + "\r\n";
+        if (responseHeader != null) str += responseHeader.toString() + "\r\n";
+        if (responseBody != null) str += responseBody.toString() + "\r\n";
+        return str;
     }
 }

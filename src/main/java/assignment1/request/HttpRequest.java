@@ -2,6 +2,8 @@ package assignment1.request;
 
 import assignment1.common.ParamHolder;
 import assignment1.transmission.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,30 +17,39 @@ import java.io.IOException;
 
 public class HttpRequest {
 
-    protected ParamHolder holder;
-    protected StringBuilder builder;
-    protected Connection connection;
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(ParamHolder holder) {
+    private ParamHolder holder;
+    private StringBuilder builder;
+    private Connection connection;
+
+    private RequestLine requestLine;
+    private RequestHeader requestHeader;
+    private RequestBody requestBody;
+
+
+    public HttpRequest(ParamHolder holder, Connection connection) {
         this.holder = holder;
+        this.connection = connection;
     }
 
-    public void send() {
+    public void send() throws IOException {
         buildRequest();
         String content = builder.toString();
-        try {
-            if (holder.hasOutputFile) {connection = new Connection(holder.outputFileName);}
-            else {connection = new Connection();}
-            connection.send(content, holder.host, Integer.parseInt(holder.port));
-        } catch (IOException e) {
-            e.printStackTrace();
+        connection.send(content, holder.host, Integer.parseInt(holder.port));
+        if (holder.isVerbose) {
+            System.out.print(requestLine.toString());
+            System.out.print(requestHeader.printHeader());
+            if (requestBody == null) {System.out.println();}
+            else {System.out.print(requestBody.toString());}
         }
+        System.out.println((holder.toString()));
     }
 
     private void buildRequest() {
         builder = new StringBuilder();
-        RequestBody requestBody = null;
-        RequestLine requestLine = new RequestLine(holder.method, holder.path);
+        requestBody = null;
+        requestLine = new RequestLine(holder.method, holder.path);
         builder.append(requestLine.toString());
 
         if (holder.hasInlineData || holder.hasFileDate) {
@@ -48,7 +59,7 @@ public class HttpRequest {
         }
 
         if (!holder.header.isEmpty()) {
-            RequestHeader requestHeader = new RequestHeader(holder);
+            requestHeader = new RequestHeader(holder);
             builder.append(requestHeader.toString());
         }
         builder.append("\r\n");
@@ -56,7 +67,6 @@ public class HttpRequest {
         if (requestBody != null && (holder.hasInlineData || holder.hasFileDate)) {
             builder.append(requestBody.toString());
         }
-//        builder.append("\r\n");
     }
 
     public Connection getConnection() {

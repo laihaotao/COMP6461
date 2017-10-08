@@ -30,7 +30,7 @@ public class ResponseHeader {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (String key : map.keySet()) {
-                builder.append(key).append(": ").append(map.get(key)).append("\n");
+                builder.append(key).append(": ").append(map.get(key)).append("\r\n");
         }
         return builder.toString();
     }

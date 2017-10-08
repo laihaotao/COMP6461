@@ -27,7 +27,7 @@ public class RequestBody {
 
     @Override
     public String toString() {
-        return argsStr;
+        return "\r\n" + argsStr;
     }
 
     public void setDebug(boolean debug) {

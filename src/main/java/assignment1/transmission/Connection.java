@@ -1,5 +1,6 @@
 package assignment1.transmission;
 
+import assignment1.common.ParamHolder;
 import assignment1.response.HttpResponse;
 import assignment1.response.ResponseBody;
 import assignment1.response.ResponseHeader;
@@ -18,6 +19,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -30,17 +32,17 @@ import java.util.Arrays;
 public class Connection {
 
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
-    private final int BUF_SIZE = 1024;
+    private final int BUF_SIZE = 8192;
 
     private SocketChannel socket;
-
     private String fileName;
+    private boolean isVerbose;
 
-    public Connection() throws IOException {
-    }
-
-    public Connection(String fileName) {
-        this.fileName = fileName;
+    public Connection(ParamHolder holder) throws IOException {
+        if (holder.hasOutputFile) {
+            this.fileName = holder.outputFileName;
+        }
+        this.isVerbose = holder.isVerbose;
     }
 
     public void send(String req, String host, int port) throws IOException {
@@ -59,7 +61,7 @@ public class Connection {
                 buffer.put(request, i * BUF_SIZE, BUF_SIZE);
                 buffer.flip();
                 socket.write(buffer);
-                logger.debug("sending request message: {}", Arrays.toString(request));
+                logger.trace("sending request message: {}", Arrays.toString(request));
                 round--;
             }
         }
@@ -68,7 +70,7 @@ public class Connection {
             buffer.put(request, 0, request.length);
             buffer.flip();
             socket.write(buffer);
-            logger.debug("sending request message: {}", Arrays.toString(request));
+            logger.trace("sending request message: {}", Arrays.toString(request));
         }
         buffer.clear();
     }
@@ -100,11 +102,11 @@ public class Connection {
 
         // split the string by "\r\n"
         String[] res = data.split("[\r\n]+");
-        logger.debug("after splitting the response by '\\r\\n', we have {} part", res.length);
+        logger.trace("after splitting the response by '\\r\\n', we have {} part", res.length);
         if (res.length > 1) {
             // process the response line
             line = new ResponseLine(res[0]);
-            logger.debug("response line: {}", line.toString());
+            logger.trace("response line: {}", line.toString());
             // process the response header
             header = new ResponseHeader();
             int i = 1;
@@ -115,56 +117,57 @@ public class Connection {
                     String key = resHeader.substring(0, idx).trim();
                     String value = resHeader.substring(idx + 1).trim();
                     header.add(key, value);
-                    logger.debug("response header: {}:{}", key, value);
+                    logger.trace("response header: {}:{}", key, value);
                 } else {
                     break;
                 }
             }
+            // it means all the remaining data is response body
+            bodyData = new StringBuilder();
+            for (; i < res.length; i++) {
+                bodyData.append(res[i]);
+            }
+            buffer.clear();
+
+            try {
+                while ((readedLen = socket.read(buffer)) != -1) {
+                    buffer.flip();
+                    // get data from buffer
+                    buffer.get(bytes, 0, readedLen);
+                    String data1 = new String(bytes, 0, readedLen);
+                    bodyData.append(data1);
+                    buffer.clear();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            body = new ResponseBody(bodyData.toString());
+
             if (line.checkRedirection()) {
                 String location = header.get("Location");
-                logger.warn("redirect to {}", location);
-                return new HttpResponse(true, location);
-            }
-
-            else {
-                // it means all the remaining data is response body
-                bodyData = new StringBuilder();
-                for (; i < res.length; i++) {
-                    bodyData.append(res[i]);
-                }
-                buffer.clear();
-
-                try {
-                    while ((readedLen = socket.read(buffer)) != -1) {
-                        buffer.flip();
-                        // get data from buffer
-                        buffer.get(bytes, 0, readedLen);
-                        String data1 = new String(bytes, 0, readedLen);
-                        bodyData.append(data1);
-                        buffer.clear();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-//            logger.debug("Response body data: {}", bodyData);
-                body = new ResponseBody(bodyData.toString());
+                logger.debug("redirect to {}", location);
+                response = new HttpResponse(true, location, line, header, body);
+            } else {
                 response = new HttpResponse(line, header, body);
             }
-            if (fileName != null) {
-                // need to write the body to a separate file
-                outputToFile(bodyData.toString());
-            }
-            return response;
         }
-        return null;
+
+        if (bodyData != null && fileName != null) {
+            // need to write the body to a separate file
+            outputToFile(bodyData.toString());
+        }
+
+        if (isVerbose && response != null) System.out.println(response.toString());
+        return response;
     }
 
     private void connect(String host, int port) throws IOException {
         SocketAddress remote = new InetSocketAddress(host, port);
         socket = SocketChannel.open();
         socket.connect(remote);
-        logger.debug("connect to: {}", socket.getRemoteAddress());
-        logger.debug("local address: {}", socket.getLocalAddress());
+        logger.trace("connect to: {}", socket.getRemoteAddress());
+        logger.trace("local address: {}", socket.getLocalAddress());
     }
 
     private void outputToFile(String body) {
