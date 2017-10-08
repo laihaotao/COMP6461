@@ -23,7 +23,7 @@ public class RequestLine {
     public RequestLine(RequestMethod method, String path) {
         this.method = method;
         this.path = path;
-        this.version = "HTTP/1.1";
+        this.version = "HTTP/1.0";
     }
 
     @Override

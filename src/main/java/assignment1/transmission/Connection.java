@@ -176,6 +176,7 @@ public class Connection {
         try {
             writer = new BufferedWriter(new FileWriter(file));
             writer.write(body);
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
