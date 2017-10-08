@@ -22,7 +22,7 @@ public class HttpClient {
         HttpResponse response = getResponse(args);
         while (response.isRedirected && times < max) {
             args[args.length - 1] = response.location;
-            getResponse(args);
+            response = getResponse(args);
             times += 1;
         }
     }

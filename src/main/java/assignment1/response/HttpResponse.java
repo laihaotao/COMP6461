@@ -33,6 +33,7 @@ public class HttpResponse {
     public HttpResponse(ResponseLine responseLine,
                         ResponseHeader responseHeader,
                         ResponseBody responseBody) {
+        this.isRedirected = false;
         this.responseLine = responseLine;
         this.responseHeader = responseHeader;
         this.responseBody = responseBody;

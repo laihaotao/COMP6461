@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Author:  Kexin Zhu, Eric(Haotao) Lai
@@ -28,8 +29,14 @@ public class CmdParser {
     public CmdParser(String[] args) {
         this.args = args;
         holder = new ParamHolder();
-        processHelp();
-        process();
+
+        if (Objects.equals(args[1], "help")) {
+            processHelp();
+            System.exit(0);
+        } else {
+            process();
+        }
+
     }
 
     public ParamHolder getHolder() {
@@ -38,6 +45,7 @@ public class CmdParser {
 
     private void process() {
         String url = args[args.length - 1];
+        if (url.charAt(url.length()-1) != '/') url += "/";
         String method = args[1];
 
 //        logger.trace("request url: {}", url);
