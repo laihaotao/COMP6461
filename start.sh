@@ -6,4 +6,4 @@
 
 # if you want to run it by name, need to add it to PATH
 
-java -jar target/COMP6461-1.0-SNAPSHOT-jar-with-dependencies.jar $*
+java -jar httpc.jar $*
