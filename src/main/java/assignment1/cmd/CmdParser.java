@@ -45,7 +45,6 @@ public class CmdParser {
 
     private void process() {
         String url = args[args.length - 1];
-        if (url.charAt(url.length()-1) != '/') url += "/";
         String method = args[1];
 
 //        logger.trace("request url: {}", url);

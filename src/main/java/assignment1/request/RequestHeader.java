@@ -51,7 +51,7 @@ public class RequestHeader {
 //        if (!holder.header.containsKey("Host")) {
 //            holder.header.put("Host", holder.host);
 //        }
-        // add time stamp
+//        // add time stamp
         Date today = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM yy hh:mm:ss z");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));

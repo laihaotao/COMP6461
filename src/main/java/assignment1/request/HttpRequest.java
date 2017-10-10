@@ -38,12 +38,9 @@ public class HttpRequest {
         String content = builder.toString();
         connection.send(content, holder.host, Integer.parseInt(holder.port));
         if (holder.isVerbose) {
-            System.out.print(requestLine.toString());
-            System.out.print(requestHeader.printHeader());
-            if (requestBody == null) {System.out.println();}
-            else {System.out.print(requestBody.toString());}
+            System.out.print(content);
         }
-        System.out.println((holder.toString()));
+        System.out.println(("\n" + holder.toString()));
     }
 
     private void buildRequest() {
@@ -56,6 +53,7 @@ public class HttpRequest {
             // if we are in a post request, need to set the Content-Length header
             requestBody = new RequestBody(holder.argsStr);
             holder.header.put("Content-Length", String.valueOf(requestBody.length));
+            holder.header.put("Content-Type", "text/plain");
         }
 
         if (!holder.header.isEmpty()) {
