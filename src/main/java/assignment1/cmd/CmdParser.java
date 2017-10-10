@@ -65,7 +65,7 @@ public class CmdParser {
             holder.header.put("Host", holder.host);
             if (noHttpUrl.contains("?")) {
                 int questionMark = noHttpUrl.indexOf('?');
-                holder.path = noHttpUrl.substring(firstSlashIdx, questionMark);
+                holder.path = noHttpUrl.substring(firstSlashIdx);
                 holder.argsStr = noHttpUrl.substring(questionMark + 1);
                 parseArgs(holder.argsStr);
             } else {
