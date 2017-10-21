@@ -1,5 +1,9 @@
 package assignment2;
 
+import assignment2.request.HttpRequest;
+
+import java.nio.channels.SocketChannel;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-10-12
@@ -9,4 +13,13 @@ package assignment2;
 
 
 public class Event {
+
+    protected String        rawData;
+    protected SocketChannel from;
+
+    public Event(String rawData, SocketChannel from) {
+        this.rawData = rawData;
+        this.from    = from;
+    }
+
 }
