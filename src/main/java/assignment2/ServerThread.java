@@ -11,6 +11,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -27,23 +29,33 @@ public class ServerThread implements Runnable {
     private final int    PORT     = 8080;
     private final int    BUF_SIZE = 8192;
 
-    private EventManager        eventManager;
-    private InetSocketAddress   hostAddress;
-    private ServerSocketChannel serverChannel;
-    private Selector            selector;
-    private ByteBuffer          buffer;
+    private EventManager                   eventManager;
+    private InetSocketAddress              hostAddress;
+    private ServerSocketChannel            serverChannel;
+    private Selector                       selector;
+    private ByteBuffer                     buffer;
+    private HashMap<SocketChannel, String> pendingData;
 
     public ServerThread(EventManager eventManager) throws IOException {
         this.eventManager = eventManager;
         this.buffer       = ByteBuffer.allocate(BUF_SIZE);
         this.hostAddress  = new InetSocketAddress(PORT);
         this.selector     = this.initSelector();
+        this.pendingData  = new HashMap<>();
     }
 
     @Override
     public void run() {
         while (true) {
             try {
+
+                while (!this.eventManager.isResQueueEmpty()) {
+                    ResponseEvent event = (ResponseEvent) this.eventManager.deResEventQueue();
+                    SelectionKey key = event.from.keyFor(this.selector);
+                    key.interestOps(SelectionKey.OP_WRITE);
+                    this.pendingData.put(event.from, event.rawData);
+                }
+
                 // Wait for an event one of the registered channels
                 this.selector.select();
 
@@ -60,6 +72,8 @@ public class ServerThread implements Runnable {
                         this.accept(key);
                     } else if (key.isReadable()) {
                         this.read(key);
+                    } else if (key.isWritable()) {
+                        this.write(key);
                     }
                 }
             } catch (Exception e) {
@@ -136,5 +150,13 @@ public class ServerThread implements Runnable {
         Event  event   = new RequestEvent(rawData, client);
         this.eventManager.enReqEventQueue(event);
         this.eventManager.reqQueueNotify();
+    }
+
+    private void write(SelectionKey key) throws IOException {
+        SocketChannel channel = (SocketChannel) key.channel();
+        String data = pendingData.remove(channel);
+        ByteBuffer buf = ByteBuffer.wrap(data.getBytes(Charset.forName("utf-8")));
+        channel.write(buf);
+        key.interestOps(SelectionKey.OP_READ);
     }
 }
