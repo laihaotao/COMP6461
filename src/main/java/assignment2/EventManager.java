@@ -43,4 +43,12 @@ public class EventManager {
     public boolean isResQueueEmpty() {
         return this.resEvenQueue.isEmpty();
     }
+
+    public void reqQueueWait() throws InterruptedException {
+        this.reqEvenQueue.wait();
+    }
+
+    public void reqQueueNotify() {
+        this.reqEvenQueue.notifyAll();
+    }
 }
