@@ -80,7 +80,7 @@ public class ServerThread implements Runnable {
         serverChannel.socket().bind(hostAddress);
 
         logger.trace("Server start ...");
-        logger.info("Create a new game room at: {}", serverChannel.getLocalAddress());
+        logger.info("Create a new server at: {}", serverChannel.getLocalAddress());
 
         // Register the server socket channel, indicating an interest in
         // accepting new connections
@@ -103,7 +103,7 @@ public class ServerThread implements Runnable {
     }
 
     private void read(SelectionKey key) throws IOException {
-        SocketChannel socketChannel = (SocketChannel) key.channel();
+        SocketChannel client = (SocketChannel) key.channel();
 
         // Clear out our read buffer so it's ready for new data
         this.buffer.clear();
@@ -111,12 +111,12 @@ public class ServerThread implements Runnable {
         // Attempt to read off the channel
         int numRead;
         try {
-            numRead = socketChannel.read(this.buffer);
+            numRead = client.read(this.buffer);
         } catch (IOException e) {
             // The remote forcibly closed the connection, cancel
             // the selection key and close the channel.
             key.cancel();
-            socketChannel.close();
+            client.close();
             return;
         }
 
@@ -128,6 +128,13 @@ public class ServerThread implements Runnable {
             return;
         }
 
-        // Todo: handle the data read from client
+        addEvent2ReqQueue(client, numRead);
+    }
+
+    private void addEvent2ReqQueue(SocketChannel client, int numRead) {
+        String rawData = new String(this.buffer.array(), 0, numRead);
+        Event  event   = new RequestEvent(rawData, client);
+        this.eventManager.enReqEventQueue(event);
+        this.eventManager.reqQueueNotify();
     }
 }
