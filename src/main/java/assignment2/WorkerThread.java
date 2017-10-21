@@ -1,5 +1,9 @@
 package assignment2;
 
+import assignment2.file.ReadDataFromFile;
+
+import java.io.IOException;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-10-12
@@ -30,18 +34,23 @@ public class WorkerThread implements Runnable {
 
             while (!eventManager.isReqQueueEmpty()) {
                 Event event = eventManager.deReqEventQueue();
-                this.reqEventHandler(event);
+                try {
+                    this.reqEventHandler(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
         }
     }
 
 
-    private void reqEventHandler(Event event) {
+    private void reqEventHandler(Event event) throws IOException {
         if (event instanceof RequestEvent) {
             RequestEvent reqEvent = (RequestEvent) event;
             String path = reqEvent.getRequest().targetPath;
-            // Todo: read content of the file with that path
+            // Todo: read content of the file with that path to a string
+            String content =  ReadDataFromFile.readFile(path);
         }
     }
 }

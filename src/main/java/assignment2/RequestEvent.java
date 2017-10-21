@@ -18,9 +18,37 @@ public class RequestEvent extends Event {
 
     public RequestEvent(String rawData, SocketChannel from) {
         super(rawData, from);
+        this.request = new HttpRequest();
     }
 
     private void parseRawData() {
+        String all = this.rawData;
+        String requestLine = all.substring(0,all.indexOf('\r'));
+        String headAndBody = all.substring('\n');
+        String [] arr = requestLine.split("\\s+");
+        request.method = arr[0];
+        request.path = arr[1];
+        request.version = arr[2];
+        String[] res = all.split("[\r\n]+");
+        int i = 1;
+        for (; i < res.length; i++) {
+            String resHeader = res[i];
+            if (resHeader.contains(":")) {
+                int idx = resHeader.indexOf(':');
+                String key = resHeader.substring(0, idx).trim();
+                String value = resHeader.substring(idx + 1).trim();
+                request.requestHeader.put(key, value);
+            } else {
+                break;
+            }
+        }
+        // it means all the remaining data is response body
+        StringBuilder bodyData = new StringBuilder();
+        for (; i < res.length; i++) {
+            bodyData.append(res[i]);
+        }
+        request.requestBody=bodyData.toString();
+
         // Todo: parse into http format
     }
 
