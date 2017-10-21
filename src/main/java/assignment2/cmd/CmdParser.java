@@ -23,15 +23,18 @@ public class CmdParser {
     }
 
     private void process() {
+
         OptionParser parser = new OptionParser();
+
         parser.accepts("v", "verbose").withOptionalArg();
         parser.accepts("p", "portNumber").withOptionalArg();
         parser.accepts("d", "directory").withOptionalArg();
+
         OptionSet opts = parser.parse(args);
         paramHolder.isVerbose = opts.has("v");
+
         if (opts.has("p")) {
-            paramHolder.hasPortNumber = true;
-            paramHolder.portNumber = Integer.parseInt(opts.valueOf("p").toString());
+            paramHolder.portNumber = Integer.parseInt((String) opts.valueOf("p"));
         }
         if (opts.has("d")) {
             paramHolder.hasDirectory = true;
@@ -42,15 +45,9 @@ public class CmdParser {
         System.out.println(paramHolder.directory);
 
     }
-//    public ParamHolder getHolder() {
-//        return paramHolder;
-//
 
-
-
-    public static void main(String[] args)  {
-    CmdParser a = new CmdParser(args);
-
+    public ParamHolder getParamHolder() {
+        return paramHolder;
     }
 }
 

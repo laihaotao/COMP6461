@@ -1,5 +1,6 @@
 package assignment2;
 
+import assignment2.common.ParamHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,6 @@ import java.util.Iterator;
 public class ServerThread implements Runnable {
 
     private final Logger logger   = LoggerFactory.getLogger(ServerThread.class);
-    private final int    PORT     = 8080;
     private final int    BUF_SIZE = 8192;
 
     private EventManager                   eventManager;
@@ -36,10 +36,10 @@ public class ServerThread implements Runnable {
     private ByteBuffer                     buffer;
     private HashMap<SocketChannel, String> pendingData;
 
-    public ServerThread(EventManager eventManager) throws IOException {
+    public ServerThread(EventManager eventManager, ParamHolder holder) throws IOException {
         this.eventManager = eventManager;
         this.buffer       = ByteBuffer.allocate(BUF_SIZE);
-        this.hostAddress  = new InetSocketAddress(PORT);
+        this.hostAddress  = new InetSocketAddress(holder.portNumber);
         this.selector     = this.initSelector();
         this.pendingData  = new HashMap<>();
     }
