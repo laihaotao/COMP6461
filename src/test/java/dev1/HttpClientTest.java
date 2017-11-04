@@ -1,13 +1,7 @@
-package dev;
+package dev1;
 
-import assignment1.cmd.CmdParser;
-import assignment1.request.HttpRequest;
-import assignment1.response.HttpResponse;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -77,7 +71,7 @@ public class HttpClientTest {
 //        HttpRequest request = parser.getHolder().getRequestInstance();
 //        request.send();
 //        logger.info(parser.getHolder().toString());
-//        HttpResponse response = request.getConnection().receive();
-//        logger.info(response.toString());
+//        HttpResponse assignment2.response = request.getConnection().receive();
+//        logger.info(assignment2.response.toString());
 //    }
 }

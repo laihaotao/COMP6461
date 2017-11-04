@@ -12,8 +12,8 @@ import java.util.LinkedList;
 
 public class EventManager {
 
-    private LinkedList<Event> reqEvenQueue;
-    private LinkedList<Event> resEvenQueue;
+    private final LinkedList<Event> reqEvenQueue;
+    private final LinkedList<Event> resEvenQueue;
 
     public EventManager() {
         this.reqEvenQueue = new LinkedList<>();
@@ -26,6 +26,9 @@ public class EventManager {
 
     public synchronized void enResEventQueue(Event event) {
         this.resEvenQueue.add(event);
+//        synchronized (this.resEvenQueue) {
+//            this.resEvenQueue.notifyAll();
+//        }
     }
 
     public synchronized Event deReqEventQueue() {
@@ -45,10 +48,14 @@ public class EventManager {
     }
 
     public void reqQueueWait() throws InterruptedException {
-        this.reqEvenQueue.wait();
+        synchronized (this.reqEvenQueue) {
+            this.reqEvenQueue.wait();
+        }
     }
 
     public void reqQueueNotify() {
-        this.reqEvenQueue.notifyAll();
+        synchronized (this.reqEvenQueue) {
+            this.reqEvenQueue.notifyAll();
+        }
     }
 }

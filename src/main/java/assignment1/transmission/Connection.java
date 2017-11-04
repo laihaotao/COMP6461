@@ -102,12 +102,12 @@ public class Connection {
 
         // split the string by "\r\n"
         String[] res = data.split("[\r\n]+");
-        logger.trace("after splitting the response by '\\r\\n', we have {} part", res.length);
+        logger.trace("after splitting the assignment2.response by '\\r\\n', we have {} part", res.length);
         if (res.length > 1) {
-            // process the response line
+            // process the assignment2.response line
             line = new ResponseLine(res[0]);
-            logger.trace("response line: {}", line.toString());
-            // process the response header
+            logger.trace("assignment2.response line: {}", line.toString());
+            // process the assignment2.response header
             header = new ResponseHeader();
             int i = 1;
             for (; i < res.length; i++) {
@@ -117,12 +117,12 @@ public class Connection {
                     String key = resHeader.substring(0, idx).trim();
                     String value = resHeader.substring(idx + 1).trim();
                     header.add(key, value);
-                    logger.trace("response header: {}:{}", key, value);
+                    logger.trace("assignment2.response header: {}:{}", key, value);
                 } else {
                     break;
                 }
             }
-            // it means all the remaining data is response body
+            // it means all the remaining data is assignment2.response body
             bodyData = new StringBuilder();
             for (; i < res.length; i++) {
                 bodyData.append(res[i]);

@@ -16,7 +16,7 @@ public class HttpRequest {
     public String method;
     public String path;
     public String version;
-    public HashMap<String,String> requestHeader = new HashMap<String,String>();
-    public String requestBody;
+    public HashMap<String,String> header = new HashMap<>();
+    public String body;
 
 }

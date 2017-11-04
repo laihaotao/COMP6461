@@ -25,20 +25,17 @@ public class ReadDataFromFile {
         String fileContent = content.toString();
         return fileContent;
     }
-    public static String readFile(String filename) throws IOException {
-        File sourceFile = new File(filename);
+    public static String readFile(File sourceFile) throws IOException {
         FileReader fileReader = new FileReader(sourceFile);
         BufferedReader br = new BufferedReader(fileReader);
         StringBuilder content = new StringBuilder();
-        String line = new String();
+        String line;
         while ((line = br.readLine()) != null) {
-
-            content.append(line+"\n");
+            content.append(line).append("\n");
         }
         br.close();
         fileReader.close();
-        String fileContent = content.toString();
-        return fileContent;
+        return content.toString();
     }
 
     public static void main(String[] args) throws IOException {

@@ -40,9 +40,9 @@ public class CmdParser {
             paramHolder.hasDirectory = true;
             paramHolder.directory = (String) opts.valueOf("d");
         }
-        System.out.println(paramHolder.isVerbose);
-        System.out.println(paramHolder.portNumber);
-        System.out.println(paramHolder.directory);
+//        System.out.println(paramHolder.isVerbose);
+//        System.out.println(paramHolder.portNumber);
+//        System.out.println(paramHolder.directory);
 
     }
 

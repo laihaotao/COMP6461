@@ -1,7 +1,5 @@
 package assignment2;
 
-import assignment2.request.HttpRequest;
-
 import java.nio.channels.SocketChannel;
 
 /**

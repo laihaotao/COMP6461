@@ -34,6 +34,7 @@ public class ServerThread implements Runnable {
     private ServerSocketChannel            serverChannel;
     private Selector                       selector;
     private ByteBuffer                     buffer;
+    private ParamHolder                    holder;
     private HashMap<SocketChannel, String> pendingData;
 
     public ServerThread(EventManager eventManager, ParamHolder holder) throws IOException {
@@ -42,22 +43,24 @@ public class ServerThread implements Runnable {
         this.hostAddress  = new InetSocketAddress(holder.portNumber);
         this.selector     = this.initSelector();
         this.pendingData  = new HashMap<>();
+        this.holder       = holder;
     }
 
     @Override
     public void run() {
         while (true) {
+
+            while (!this.eventManager.isResQueueEmpty()) {
+                ResponseEvent event = (ResponseEvent) this.eventManager.deResEventQueue();
+                SelectionKey  key   = event.from.keyFor(this.selector);
+                key.interestOps(SelectionKey.OP_WRITE);
+                this.pendingData.put(event.from, event.rawData);
+            }
+
             try {
 
-                while (!this.eventManager.isResQueueEmpty()) {
-                    ResponseEvent event = (ResponseEvent) this.eventManager.deResEventQueue();
-                    SelectionKey key = event.from.keyFor(this.selector);
-                    key.interestOps(SelectionKey.OP_WRITE);
-                    this.pendingData.put(event.from, event.rawData);
-                }
-
                 // Wait for an event one of the registered channels
-                this.selector.select();
+                this.selector.select(1000);
 
                 // Iterate over the set of keys for which events are available
                 Iterator selectedKeys = this.selector.selectedKeys().iterator();
@@ -111,6 +114,8 @@ public class ServerThread implements Runnable {
         SocketChannel clientChannel = serverSocketChannel.accept();
         clientChannel.configureBlocking(false);
 
+        logger.info("A new client comes: {}", clientChannel.getRemoteAddress());
+
         // Register the new SocketChannel with our Selector, indicating
         // we'd like to be notified when there's data waiting to be read
         clientChannel.register(this.selector, SelectionKey.OP_READ);
@@ -147,9 +152,10 @@ public class ServerThread implements Runnable {
 
     private void addEvent2ReqQueue(SocketChannel client, int numRead) {
         String rawData = new String(this.buffer.array(), 0, numRead);
-        Event  event   = new RequestEvent(rawData, client);
+        Event  event   = new RequestEvent(rawData, client, this.holder);
         this.eventManager.enReqEventQueue(event);
         this.eventManager.reqQueueNotify();
+        logger.trace("Receive data from client: \n======\n{}\n======\n", rawData);
     }
 
     private void write(SelectionKey key) throws IOException {
@@ -158,5 +164,6 @@ public class ServerThread implements Runnable {
         ByteBuffer buf = ByteBuffer.wrap(data.getBytes(Charset.forName("utf-8")));
         channel.write(buf);
         key.interestOps(SelectionKey.OP_READ);
+        channel.close();
     }
 }

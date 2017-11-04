@@ -1,9 +1,8 @@
-package dev;
+package dev1;
 
 import assignment1.cmd.CmdParser;
 import assignment1.common.ParamHolder;
 import assignment1.request.RequestMethod;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,9 +1,4 @@
-package dev;
-
-import assignment1.transmission.Connection;
-import org.junit.Test;
-
-import java.io.IOException;
+package dev1;
 
 /**
  * Author:  Eric(Haotao) Lai

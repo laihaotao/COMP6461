@@ -1,6 +1,4 @@
-package dev;
-
-import org.junit.Test;
+package dev1;
 
 /**
  * Author:  Eric(Haotao) Lai
