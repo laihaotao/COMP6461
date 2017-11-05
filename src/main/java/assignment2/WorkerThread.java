@@ -60,6 +60,10 @@ public class WorkerThread implements Runnable {
 
                 try {
                     body = ReadDataFromFile.readFile(file);
+                    response.header.put(
+                            "Content-Disposition",
+                            "attachment;filename=" + file.getName()
+                    );
                 } catch (IOException e) {
                     if (e instanceof FileNotFoundException) {
                         code = 404;
@@ -72,6 +76,7 @@ public class WorkerThread implements Runnable {
             else if (file.isDirectory() && !file.isHidden()) {
                 File[] list = file.listFiles((dir, name) -> name.charAt(0) != '.');
                 body = this.packFileList2String(list);
+                response.header.put("Content-Disposition", "inline");
             }
         }
         // if the request is a post, write the body to a file with specified name
@@ -85,23 +90,18 @@ public class WorkerThread implements Runnable {
                 e.printStackTrace();
             }
         }
-
-        String format = reqEvent.getRequest().header.get("_Format");
-        if (null != format) {
-            // generate different format response, set Content-Type and
-            // Content-Disposition to the corresponding format
-
-            if ("json".equals(format)) {
-                response.header.put("Content-Type", "application/json");
-
-            }else if ("xml".equals(format)) {
-                response.header.put("Content-Type", "application/xml");
-
-            } else if ("text".equals(format)) {
-                response.header.put("Content-Type", "text/plain");
-
-            }
-        }
+//
+//        String disposition = reqEvent.getRequest().header.get("_Disposition");
+//        if (null != disposition) {
+//
+//            if ("inline".equals(disposition)) {
+//                response.header.put("Content-Disposition", "inline");
+//
+//            } else if ("attachment".equals(disposition)) {
+//                response.header.put("Content-Disposition", "attachment");
+//
+//            }
+//        }
 
         response.body = body;
         response.code = code;
