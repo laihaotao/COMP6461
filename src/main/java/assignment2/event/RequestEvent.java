@@ -1,4 +1,4 @@
-package assignment2;
+package assignment2.event;
 
 import assignment2.common.ParamHolder;
 import assignment2.request.HttpRequest;

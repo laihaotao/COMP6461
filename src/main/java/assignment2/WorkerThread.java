@@ -1,5 +1,7 @@
 package assignment2;
 
+import assignment2.event.RequestEvent;
+import assignment2.event.ResponseEvent;
 import assignment2.file.ReadDataFromFile;
 import assignment2.file.WriteDataToFile;
 import assignment2.response.HttpResponse;
@@ -84,7 +86,23 @@ public class WorkerThread implements Runnable {
             }
         }
 
-        
+        String format = reqEvent.getRequest().header.get("_Format");
+        if (null != format) {
+            // generate different format response, set Content-Type and
+            // Content-Disposition to the corresponding format
+
+            if ("json".equals(format)) {
+                response.header.put("Content-Type", "application/json");
+
+            }else if ("xml".equals(format)) {
+                response.header.put("Content-Type", "application/xml");
+
+            } else if ("text".equals(format)) {
+                response.header.put("Content-Type", "text/plain");
+
+            }
+        }
+
         response.body = body;
         response.code = code;
 

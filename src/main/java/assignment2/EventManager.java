@@ -1,5 +1,7 @@
 package assignment2;
 
+import assignment2.event.Event;
+
 import java.util.LinkedList;
 
 /**

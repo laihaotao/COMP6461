@@ -1,4 +1,4 @@
-package assignment2;
+package assignment2.event;
 
 import java.nio.channels.SocketChannel;
 
@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
  */
 
 
-public class ResponseEvent extends Event{
+public class ResponseEvent extends Event {
 
     public ResponseEvent(String rawData, SocketChannel from) {
         super(rawData, from);

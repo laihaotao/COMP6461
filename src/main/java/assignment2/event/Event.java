@@ -1,4 +1,4 @@
-package assignment2;
+package assignment2.event;
 
 import java.nio.channels.SocketChannel;
 
@@ -12,8 +12,8 @@ import java.nio.channels.SocketChannel;
 
 public class Event {
 
-    protected String        rawData;
-    protected SocketChannel from;
+    public String        rawData;
+    public SocketChannel from;
 
     public Event(String rawData, SocketChannel from) {
         this.rawData = rawData;
