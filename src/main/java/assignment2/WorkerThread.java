@@ -55,15 +55,7 @@ public class WorkerThread implements Runnable {
         String body   = null;
         HttpResponse response = new HttpResponse(reqEvent.getRequest().version);
 
-        //find out if this file or directory exsists. if not :404
-
-//
-//        if (!file.exists()){
-//            code = 404;
-//        }
-
-//        else
-            if ("get".equals(method)) {
+        if ("get".equals(method)) {
 
             // if the request path point to a file, return the content of that file
             if (file.isFile() && !file.isHidden()) {
@@ -75,48 +67,39 @@ public class WorkerThread implements Runnable {
                             "attachment;filename=" + file.getName()
                     );
                     //match file type and add Content-Type header
-                    String fileSuffix  = file.getName().substring(file.getName().lastIndexOf('.')+1);
-                    if((fileSuffix.equals("css"))||(fileSuffix.equals("html"))){
-                        response.header.put(
-                                "Content-Type", "text/"+fileSuffix
-                        );
+                    String fileSuffix = file.getName()
+                            .substring(file.getName().lastIndexOf('.') + 1);
+                    switch (fileSuffix) {
+                        case "css":
+                        case "html":
+                            response.header.put("Content-Type", "text/" + fileSuffix);
+                            break;
+                        case "jsp":
+                            response.header.put("Content-Type", "text/html");
+                            break;
+                        case "txt":
+                            response.header.put("Content-Type", "text/plain");
+                            break;
+                        case "jpg":
+                        case "jpeg":
+                            response.header.put("Content-Type", "image/jpeg");
+                            break;
+                        case "img":
+                            response.header.put("Content-Type", "application/x-img");
+                            break;
+                        case "pdf":
+                            response.header.put("Content-Type", "application/pdf");
+                            break;
+                        case "png":
+                            response.header.put("Content-Type", "application/x-png");
+                            break;
+                        case "xsd":
+                        case "xql":
+                        case "xslt":
+                        case "biz":
+                            response.header.put("Content-Type", "text/xml");
+                            break;
                     }
-                    else if(fileSuffix.equals("jsp")){
-                        response.header.put(
-                                "Content-Type", "text/html"
-                        );
-                    }
-                    else if(fileSuffix.equals("txt")){
-                        response.header.put(
-                                "Content-Type", "text/plain"
-                        );
-                    }
-                    else if((fileSuffix.equals("jpg"))||(fileSuffix.equals("jpeg"))){
-                        response.header.put(
-                                "Content-Type", "image/jpeg"
-                        );
-                    }
-                    else if(fileSuffix.equals("img")){
-                        response.header.put(
-                                "Content-Type", "application/x-img"
-                        );
-                    }
-                    else if(fileSuffix.equals("pdf")){
-                        response.header.put(
-                                "Content-Type", "application/pdf"
-                        );
-                    }
-                    else if(fileSuffix.equals("png")){
-                        response.header.put(
-                                "Content-Type", "application/x-png"
-                        );
-                    }
-                    else if((fileSuffix.equals("xsd"))||(fileSuffix.equals("xql"))||(fileSuffix.equals("xslt"))||(fileSuffix.equals("biz"))){
-                        response.header.put(
-                                "Content-Type", "text/xml"
-                        );
-                    }
-
 
                 } catch (IOException e) {
                     if (e instanceof FileNotFoundException) {
@@ -132,6 +115,11 @@ public class WorkerThread implements Runnable {
                 body = this.packFileList2String(list);
                 response.header.put("Content-Disposition", "inline");
             }
+
+            // if the file path is wrong
+            else if (!file.exists()){
+                code = 404;
+            }
         }
         // if the request is a post, write the body to a file with specified name
         else if ("post".equals(method)) {
@@ -144,18 +132,6 @@ public class WorkerThread implements Runnable {
                 e.printStackTrace();
             }
         }
-//
-//        String disposition = reqEvent.getRequest().header.get("_Disposition");
-//        if (null != disposition) {
-//
-//            if ("inline".equals(disposition)) {
-//                response.header.put("Content-Disposition", "inline");
-//
-//            } else if ("attachment".equals(disposition)) {
-//                response.header.put("Content-Disposition", "attachment");
-//
-//            }
-//        }
 
         response.body = body;
         response.code = code;
