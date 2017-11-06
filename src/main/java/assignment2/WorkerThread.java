@@ -49,12 +49,22 @@ public class WorkerThread implements Runnable {
     private void reqEventHandler(RequestEvent reqEvent) {
         String method = reqEvent.getRequest().method.toLowerCase();
         String path   = reqEvent.getRequest().targetPath;
+
         File   file   = new File(path);
         int    code   = 200;
         String body   = null;
         HttpResponse response = new HttpResponse(reqEvent.getRequest().version);
 
-        if ("get".equals(method)) {
+        //find out if this file or directory exsists. if not :404
+
+//
+//        if (!file.exists()){
+//            code = 404;
+//        }
+
+//        else
+            if ("get".equals(method)) {
+
             // if the request path point to a file, return the content of that file
             if (file.isFile() && !file.isHidden()) {
 
