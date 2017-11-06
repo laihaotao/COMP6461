@@ -64,6 +64,50 @@ public class WorkerThread implements Runnable {
                             "Content-Disposition",
                             "attachment;filename=" + file.getName()
                     );
+                    //match file type and add Content-Type header
+                    String fileSuffix  = file.getName().substring(file.getName().lastIndexOf('.')+1);
+                    if((fileSuffix.equals("css"))||(fileSuffix.equals("html"))){
+                        response.header.put(
+                                "Content-Type", "text/"+fileSuffix
+                        );
+                    }
+                    else if(fileSuffix.equals("jsp")){
+                        response.header.put(
+                                "Content-Type", "text/html"
+                        );
+                    }
+                    else if(fileSuffix.equals("txt")){
+                        response.header.put(
+                                "Content-Type", "text/plain"
+                        );
+                    }
+                    else if((fileSuffix.equals("jpg"))||(fileSuffix.equals("jpeg"))){
+                        response.header.put(
+                                "Content-Type", "image/jpeg"
+                        );
+                    }
+                    else if(fileSuffix.equals("img")){
+                        response.header.put(
+                                "Content-Type", "application/x-img"
+                        );
+                    }
+                    else if(fileSuffix.equals("pdf")){
+                        response.header.put(
+                                "Content-Type", "application/pdf"
+                        );
+                    }
+                    else if(fileSuffix.equals("png")){
+                        response.header.put(
+                                "Content-Type", "application/x-png"
+                        );
+                    }
+                    else if((fileSuffix.equals("xsd"))||(fileSuffix.equals("xql"))||(fileSuffix.equals("xslt"))||(fileSuffix.equals("biz"))){
+                        response.header.put(
+                                "Content-Type", "text/xml"
+                        );
+                    }
+
+
                 } catch (IOException e) {
                     if (e instanceof FileNotFoundException) {
                         code = 404;

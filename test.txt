@@ -1,0 +1,1 @@
+this file is for testing Get/file and ContentType header for txt file.
