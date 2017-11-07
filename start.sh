@@ -6,4 +6,5 @@
 
 # if you want to run it by name, need to add it to PATH
 
-java -jar httpc.jar $*
+# java -jar httpc.jar $*
+java -jar httpfs.jar $*
