@@ -25,29 +25,29 @@ public class ReadDataFromFile {
 //        String fileContent = content.toString();
 //        return fileContent;
 //    }
-
-    public static String readFile(File sourceFile) throws IOException {
-        FileReader fileReader = new FileReader(sourceFile);
-        BufferedReader br = new BufferedReader(fileReader);
-        StringBuilder content = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            content.append(line).append("\n");
-        }
-        br.close();
-        fileReader.close();
-        return content.toString();
-    }
-
 //
-//    public static byte[] readFile(File sourceFile) throws IOException {
-//        byte[] buf = new byte[1024 * 1024];
-//        InputStream ins = new FileInputStream(sourceFile);
-//        int len = ins.read(buf);
-//        byte[] res = new byte[len];
-//        System.arraycopy(buf, 0, res, 0, len);
-//        return res;
+//    public static String readFile(File sourceFile) throws IOException {
+//        FileReader fileReader = new FileReader(sourceFile);
+//        BufferedReader br = new BufferedReader(fileReader);
+//        StringBuilder content = new StringBuilder();
+//        String line;
+//        while ((line = br.readLine()) != null) {
+//            content.append(line).append("\n");
+//        }
+//        br.close();
+//        fileReader.close();
+//        return content.toString();
 //    }
+
+
+    public static byte[] readFile(File sourceFile) throws IOException {
+        byte[] buf = new byte[1024 * 1024];
+        InputStream ins = new FileInputStream(sourceFile);
+        int len = ins.read(buf);
+        byte[] res = new byte[len];
+        System.arraycopy(buf, 0, res, 0, len);
+        return res;
+    }
 
 
 }

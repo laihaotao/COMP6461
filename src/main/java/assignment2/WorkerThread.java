@@ -9,6 +9,7 @@ import assignment2.response.HttpResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -52,7 +53,7 @@ public class WorkerThread implements Runnable {
 
         File   file   = new File(path);
         int    code   = 200;
-        String body   = null;
+        byte[] body   = null;
         HttpResponse response = new HttpResponse(reqEvent.getRequest().version);
 
         if ("get".equals(method)) {
@@ -66,40 +67,11 @@ public class WorkerThread implements Runnable {
                             "Content-Disposition",
                             "attachment;filename=" + file.getName()
                     );
+
                     //match file type and add Content-Type header
                     String fileSuffix = file.getName()
                             .substring(file.getName().lastIndexOf('.') + 1);
-                    switch (fileSuffix) {
-                        case "css":
-                        case "html":
-                            response.header.put("Content-Type", "text/" + fileSuffix);
-                            break;
-                        case "jsp":
-                            response.header.put("Content-Type", "text/html");
-                            break;
-                        case "txt":
-                            response.header.put("Content-Type", "text/plain");
-                            break;
-                        case "jpg":
-                        case "jpeg":
-                            response.header.put("Content-Type", "image/jpeg");
-                            break;
-                        case "img":
-                            response.header.put("Content-Type", "application/x-img");
-                            break;
-                        case "pdf":
-                            response.header.put("Content-Type", "application/pdf");
-                            break;
-                        case "png":
-                            response.header.put("Content-Type", "application/x-png");
-                            break;
-                        case "xsd":
-                        case "xql":
-                        case "xslt":
-                        case "biz":
-                            response.header.put("Content-Type", "text/xml");
-                            break;
-                    }
+                    fillContentTypeHeader(response, fileSuffix);
 
                 } catch (IOException e) {
                     if (e instanceof FileNotFoundException) {
@@ -112,7 +84,12 @@ public class WorkerThread implements Runnable {
             // if the file point a directory, return the list of items inside that directory
             else if (file.isDirectory() && !file.isHidden()) {
                 File[] list = file.listFiles((dir, name) -> name.charAt(0) != '.');
-                body = this.packFileList2String(list);
+                try {
+                    body = this.packFileList2String(list);
+                } catch (UnsupportedEncodingException e) {
+                    code = 404;
+                    e.printStackTrace();
+                }
                 response.header.put("Content-Disposition", "inline");
             }
 
@@ -136,17 +113,51 @@ public class WorkerThread implements Runnable {
         response.body = body;
         response.code = code;
 
-        ResponseEvent resEvent = new ResponseEvent(response.toString(), reqEvent.from);
+        ResponseEvent resEvent = new ResponseEvent(null, reqEvent.from, response);
         eventManager.enResEventQueue(resEvent);
 
     }
 
-    private String packFileList2String(File[] list) {
+    private void fillContentTypeHeader(HttpResponse response, String fileSuffix) {
+        switch (fileSuffix) {
+            case "css":
+            case "html":
+                response.header.put("Content-Type", "text/" + fileSuffix);
+                break;
+            case "jsp":
+                response.header.put("Content-Type", "text/html");
+                break;
+            case "txt":
+                response.header.put("Content-Type", "text/plain");
+                break;
+            case "jpg":
+            case "jpeg":
+                response.header.put("Content-Type", "image/jpeg");
+                break;
+            case "img":
+                response.header.put("Content-Type", "application/x-img");
+                break;
+            case "pdf":
+                response.header.put("Content-Type", "application/pdf");
+                break;
+            case "png":
+                response.header.put("Content-Type", "application/x-png");
+                break;
+            case "xsd":
+            case "xql":
+            case "xslt":
+            case "biz":
+                response.header.put("Content-Type", "text/xml");
+                break;
+        }
+    }
+
+    private byte[] packFileList2String(File[] list) throws UnsupportedEncodingException {
         StringBuilder builder = new StringBuilder();
         for (File f : list) {
             builder.append(f.getName()).append("\n");
         }
-        return builder.toString();
+        return builder.toString().getBytes("utf-8");
     }
 
 }

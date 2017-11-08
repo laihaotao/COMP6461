@@ -1,5 +1,7 @@
 package assignment2.event;
 
+import assignment2.response.HttpResponse;
+
 import java.nio.channels.SocketChannel;
 
 /**
@@ -12,7 +14,14 @@ import java.nio.channels.SocketChannel;
 
 public class ResponseEvent extends Event {
 
-    public ResponseEvent(String rawData, SocketChannel from) {
+    private HttpResponse response;
+
+    public ResponseEvent(String rawData, SocketChannel from, HttpResponse response) {
         super(rawData, from);
+        this.response = response;
+    }
+
+    public HttpResponse getResponse() {
+        return response;
     }
 }

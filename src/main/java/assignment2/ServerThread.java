@@ -38,7 +38,7 @@ public class ServerThread implements Runnable {
     private Selector                       selector;
     private ByteBuffer                     buffer;
     private ParamHolder                    holder;
-    private HashMap<SocketChannel, String> pendingData;
+    private HashMap<SocketChannel, ResponseEvent> pendingData;
 
     public ServerThread(EventManager eventManager, ParamHolder holder) throws IOException {
         this.eventManager = eventManager;
@@ -57,7 +57,7 @@ public class ServerThread implements Runnable {
                 ResponseEvent event = (ResponseEvent) this.eventManager.deResEventQueue();
                 SelectionKey  key   = event.from.keyFor(this.selector);
                 key.interestOps(SelectionKey.OP_WRITE);
-                this.pendingData.put(event.from, event.rawData);
+                this.pendingData.put(event.from, event);
             }
 
             try {
@@ -163,8 +163,13 @@ public class ServerThread implements Runnable {
 
     private void write(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        String data = pendingData.remove(channel);
-        ByteBuffer buf = ByteBuffer.wrap(data.getBytes(Charset.forName("utf-8")));
+        ResponseEvent event = pendingData.remove(channel);
+        ByteBuffer buf = ByteBuffer.wrap(
+                event.getResponse().toString().getBytes(Charset.forName("utf-8"))
+        );
+        channel.write(buf);
+        buf.clear();
+        buf = ByteBuffer.wrap(event.getResponse().body);
         channel.write(buf);
         key.interestOps(SelectionKey.OP_READ);
         channel.close();

@@ -18,7 +18,7 @@ public class HttpResponse {
     public String version;
     public int    code;
     public String status;
-    public String body;
+    public byte[] body;
     public HashMap<String, String> header = new HashMap<>();
 
     public HttpResponse(String version) {
@@ -48,7 +48,6 @@ public class HttpResponse {
             builder.append(key).append(": ").append(header.get(key)).append("\r\n");
         }
         builder.append("\r\n");
-        builder.append(body);
         return builder.toString();
     }
 }
