@@ -122,7 +122,7 @@ public class Connection {
                     break;
                 }
             }
-            // it means all the remaining data is assignment2.response body
+            // it means all the remaining data is assignment2.response fileBody
             bodyData = new StringBuilder();
             for (; i < res.length; i++) {
                 bodyData.append(res[i]);
@@ -154,7 +154,7 @@ public class Connection {
         }
 
         if (bodyData != null && fileName != null) {
-            // need to write the body to a separate file
+            // need to write the fileBody to a separate file
             outputToFile(bodyData.toString());
         }
 

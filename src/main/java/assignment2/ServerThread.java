@@ -168,10 +168,18 @@ public class ServerThread implements Runnable {
                 event.getResponse().toString().getBytes(Charset.forName("utf-8"))
         );
         channel.write(buf);
-        buf.clear();
-        if (event.getResponse().body != null) {
-            buf = ByteBuffer.wrap(event.getResponse().body);
+        if (event.getResponse().strBody != null) {
+            buf.clear();
+            buf = ByteBuffer.wrap(event.getResponse().strBody.getBytes("utf-8"));
             channel.write(buf);
+        }
+        if (event.getResponse().getFileBody() != null) {
+            buf.clear();
+            byte[] out_buf;
+            while ((out_buf = event.getResponse().getBody()) != null) {
+                buf = ByteBuffer.wrap(out_buf);
+                channel.write(buf);
+            }
         }
         key.interestOps(SelectionKey.OP_READ);
         channel.close();

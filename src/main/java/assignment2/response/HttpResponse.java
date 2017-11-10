@@ -1,5 +1,7 @@
 package assignment2.response;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,14 +17,43 @@ import java.util.TimeZone;
 
 public class HttpResponse {
 
-    public String version;
-    public int    code;
-    public String status;
-    public byte[] body;
+    private final int BUF_SIZE = 1024;
+
+    public String      version;
+    public int         code;
+    public String      status;
+    private InputStream fileBody;
+    public String      strBody;
     public HashMap<String, String> header = new HashMap<>();
+
+    private byte[] buf = new byte[BUF_SIZE];
+    private int length;
+    private int curLen;
 
     public HttpResponse(String version) {
         this.version = version;
+    }
+
+    public byte[] getBody() throws IOException {
+        if (this.curLen < this.length) {
+            int len = this.fileBody.read(this.buf, 0, this.BUF_SIZE);
+            this.curLen += len;
+            return buf;
+        }
+        return null;
+    }
+
+    public void setFileBody(InputStream fileBody) {
+        try {
+            this.length = fileBody.available();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.fileBody = fileBody;
+    }
+
+    public InputStream getFileBody() {
+        return fileBody;
     }
 
     @Override

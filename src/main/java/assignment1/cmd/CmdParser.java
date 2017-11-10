@@ -231,10 +231,10 @@ public class CmdParser {
                 "protocol, status, and headers.");
         formatter.format("\t%-20s %-200s\n", "-h key:value", "Associates headers to HTTP Request " +
                 "with the format 'key:value'.");
-        formatter.format("\t%-20s %-200s\n", "-d string", "Associates an inline data to the body " +
+        formatter.format("\t%-20s %-200s\n", "-d string", "Associates an inline data to the fileBody " +
                 "HTTP POST request.");
         formatter.format("\t%-20s %-200s\n", "-f file", "Associates the content of a file to the " +
-                "body HTTP POST request.");
+                "fileBody HTTP POST request.");
         System.out.println("Either [-d] or [-f] can be used but not both.");
     }
 

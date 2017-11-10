@@ -2,14 +2,10 @@ package assignment2;
 
 import assignment2.event.RequestEvent;
 import assignment2.event.ResponseEvent;
-import assignment2.file.ReadDataFromFile;
 import assignment2.file.WriteDataToFile;
 import assignment2.response.HttpResponse;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -48,12 +44,10 @@ public class WorkerThread implements Runnable {
     }
 
     private void reqEventHandler(RequestEvent reqEvent) {
-        String method = reqEvent.getRequest().method.toLowerCase();
-        String path   = reqEvent.getRequest().targetPath;
-
-        File   file   = new File(path);
-        int    code   = 200;
-        byte[] body   = null;
+        String       method   = reqEvent.getRequest().method.toLowerCase();
+        String       path     = reqEvent.getRequest().targetPath;
+        File         file     = new File(path);
+        int          code     = 200;
         HttpResponse response = new HttpResponse(reqEvent.getRequest().version);
 
         if ("get".equals(method)) {
@@ -62,7 +56,7 @@ public class WorkerThread implements Runnable {
             if (file.isFile() && !file.isHidden()) {
 
                 try {
-                    body = ReadDataFromFile.readFile(file);
+                    response.setFileBody(new FileInputStream(file));
                     response.header.put(
                             "Content-Disposition",
                             "attachment;filename=" + file.getName()
@@ -84,12 +78,7 @@ public class WorkerThread implements Runnable {
             // if the file point a directory, return the list of items inside that directory
             else if (file.isDirectory() && !file.isHidden()) {
                 File[] list = file.listFiles((dir, name) -> name.charAt(0) != '.');
-                try {
-                    body = this.packFileList2String(list);
-                } catch (UnsupportedEncodingException e) {
-                    code = 404;
-                    e.printStackTrace();
-                }
+                response.strBody = this.packFileList2String(list);
                 response.header.put("Content-Disposition", "inline");
             }
 
@@ -98,7 +87,7 @@ public class WorkerThread implements Runnable {
                 code = 404;
             }
         }
-        // if the request is a post, write the body to a file with specified name
+        // if the request is a post, write the fileBody to a file with specified name
         else if ("post".equals(method)) {
             String postBody = reqEvent.getRequest().body;
             try {
@@ -110,7 +99,6 @@ public class WorkerThread implements Runnable {
             }
         }
 
-        response.body = body;
         response.code = code;
 
         ResponseEvent resEvent = new ResponseEvent(null, reqEvent.from, response);
@@ -152,12 +140,12 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    private byte[] packFileList2String(File[] list) throws UnsupportedEncodingException {
+    private String packFileList2String(File[] list) {
         StringBuilder builder = new StringBuilder();
         for (File f : list) {
             builder.append(f.getName()).append("\n");
         }
-        return builder.toString().getBytes("utf-8");
+        return builder.toString();
     }
 
 }

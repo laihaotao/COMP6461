@@ -75,8 +75,8 @@ class test {
                         "Post executes a HTTP POST request for a given URL with inline data or from file.\n");
         formatter.format("\t%-20s %-200s\n", "-v", "Prints the detail of the assignment2.response such as protocol, status, and headers.");
         formatter.format("\t%-20s %-200s\n", "-h key:value", "Associates headers to HTTP RequestTest with the format 'key:value'.");
-        formatter.format("\t%-20s %-200s\n", "-d string", "Associates an inline data to the body HTTP POST request.");
-        formatter.format("\t%-20s %-200s\n", "-f file", "Associates the content of a file to the body HTTP POST request.");
+        formatter.format("\t%-20s %-200s\n", "-d string", "Associates an inline data to the fileBody HTTP POST request.");
+        formatter.format("\t%-20s %-200s\n", "-f file", "Associates the content of a file to the fileBody HTTP POST request.");
         System.out.println("Either [-d] or [-f] can be used but not both.");
     }
 }

@@ -45,7 +45,7 @@ public class RequestEvent extends Event {
                 break;
             }
         }
-        // it means all the remaining data is assignment2.response body
+        // it means all the remaining data is assignment2.response fileBody
         StringBuilder bodyData = new StringBuilder();
         for (; i < res.length; i++) {
             bodyData.append(res[i]);
