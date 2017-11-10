@@ -169,8 +169,10 @@ public class ServerThread implements Runnable {
         );
         channel.write(buf);
         buf.clear();
-        buf = ByteBuffer.wrap(event.getResponse().body);
-        channel.write(buf);
+        if (event.getResponse().body != null) {
+            buf = ByteBuffer.wrap(event.getResponse().body);
+            channel.write(buf);
+        }
         key.interestOps(SelectionKey.OP_READ);
         channel.close();
     }
