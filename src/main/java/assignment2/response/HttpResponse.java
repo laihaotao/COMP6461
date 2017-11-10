@@ -26,9 +26,9 @@ public class HttpResponse {
     public String      strBody;
     public HashMap<String, String> header = new HashMap<>();
 
-    private byte[] buf = new byte[BUF_SIZE];
+    private byte[] buf    = new byte[BUF_SIZE];
+    private int    curLen = 0;
     private int length;
-    private int curLen;
 
     public HttpResponse(String version) {
         this.version = version;
