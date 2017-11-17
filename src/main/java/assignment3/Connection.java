@@ -17,7 +17,7 @@ import java.nio.channels.DatagramChannel;
 
 
 // theory of setup the connection (three ways handshake)
-// 1. randomly pick a initial sequence number and send a SYN segment;
+// 1. randomly pick a initial sequence number and send a SYN_1 segment;
 // 2. wait for the connection-granted segment from the targeted host;
 // 3. allocate buffers and variables for that connection, ack remote sequence number;
 
@@ -31,32 +31,29 @@ public class Connection {
     private InetSocketAddress targetAddress;
     private SenderBuffer      buffer;
 
-    public Connection(InetSocketAddress targetAddress) throws IOException {
-        this.targetAddress = targetAddress;
+    public Connection() {
     }
 
-    public void send(byte[] message) throws IOException, HandShakingFailException {
-        // perform the handshake
-        if (!hasHandShake) {
-            this.sendInitialSegment();
-            this.buffer = new SenderBuffer(this.localSeqNum, this.remoteSeqNum);
-        }
+    public Connection(InetSocketAddress targetAddress) {
+        this.connect(targetAddress);
+    }
+
+    public void connect(InetSocketAddress targetAddress) throws HandShakingFailException {
+        this.targetAddress = targetAddress;
+        this.sendInitialSegment();
+        this.buffer = new SenderBuffer(this.localSeqNum, this.remoteSeqNum);
+        new Thread(this.buffer).start();
+    }
+
+    public void send(byte[] message) throws IOException {
         // break the message into chunks
         Packet[] packets = makeChunks(message);
         // put all chunks into the sender buffer
         this.buffer.add(packets);
-        // let the buffer to send data using selective repeat protocol
-        Thread sendThread = new Thread(this.buffer);
-        if (!hasHandShake && !sendThread.isAlive()) {
-            // if already handshake and the sending thread has
-            // already end then start a new sending thread
-            sendThread.start();
-            hasHandShake = true;
-        }
     }
 
     private Packet[] makeChunks(byte[] message) {
-        int      mLen    = message.length;
+        int      mLen      = message.length;
         int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
         int      offset    = 0;
         Packet[] packets   = new Packet[packetAmt];
@@ -76,7 +73,7 @@ public class Connection {
         return packets;
     }
 
-    private void sendInitialSegment() throws IOException, HandShakingFailException {
+    private void sendInitialSegment() throws HandShakingFailException {
         int  repeat = 5;
         long remoteSeq;
         try (DatagramChannel channel = DatagramChannel.open()) {
@@ -84,7 +81,7 @@ public class Connection {
                 this.localSeqNum = this.updateLocalSequenceNum();
                 // create a initial handshake packet
                 Packet packet = new Packet.Builder()
-                        .setType(Packet.SYN)
+                        .setType(Packet.SYN_1)
                         .setSequenceNumber(this.localSeqNum)
                         .setPortNumber(this.targetAddress.getPort())
                         .setPeerAddress(this.targetAddress.getAddress())
@@ -94,20 +91,36 @@ public class Connection {
                 UDP.send(channel, packet.toBuffer(), this.routerAddress);
 
                 // try to wait for the acknowledge from the remote host
-                // if the remoteSeq = -1, means cannot receive the SYN_ACK need to resend
+                // if the remoteSeq = -1, means cannot receive the SYN_2 need to resend
                 remoteSeq = UDP.recvSynAck(channel);
                 repeat--;
             } while (remoteSeq == -1 && repeat >= 0);
-        }
 
-        if (repeat < 0) {
-            // it means the initial packet cannot be acknowledged correctly
-            throw new HandShakingFailException();
+            if (repeat < 0) {
+                // it means the initial packet cannot be acknowledged correctly
+                throw new HandShakingFailException();
+            } else {
+                // otherwise, SYN_2 received correctly then send the third packet
+                this.remoteSeqNum = remoteSeq;
+                Packet packet = new Packet.Builder()
+                        .setType(Packet.SYN_2)
+                        .setSequenceNumber(this.remoteSeqNum + 1)
+                        .setPortNumber(this.targetAddress.getPort())
+                        .setPeerAddress(this.targetAddress.getAddress())
+                        .setPayload(null)
+                        .create();
+                UDP.send(channel, packet.toBuffer(), this.routerAddress);
+                if (!UDP.recvSynAckAck(channel, this.localSeqNum + 1)) {
+                    throw new HandShakingFailException();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        this.remoteSeqNum = remoteSeq;
     }
 
     private long updateLocalSequenceNum() {
+        // todo: need to design the sequence number selection algorithm
         return 1L;
     }
 

@@ -38,8 +38,8 @@ public class UDP {
             buf.flip();
             Packet recvPacket = Packet.fromBuffer(buf);
 
-            if (recvPacket.getType() == Packet.SYN_ACK) {
-                // if the packet is a SYN_ACK packet means the receiver
+            if (recvPacket.getType() == Packet.SYN_2) {
+                // if the packet is a SYN_2 packet means the receiver
                 // acknowledge the sender's sequence + 1 and the packet's
                 // sequenceNumber field is the receiver's beginning sequence number
                 long seqNum = recvPacket.getSequenceNumber();
@@ -48,6 +48,27 @@ public class UDP {
             }
         }
         return -1;
+    }
+
+    public static boolean recvSynAckAck(DatagramChannel c, long expectedSeqNum) throws IOException {
+        c.configureBlocking(false);
+        Selector selector = Selector.open();
+        c.register(selector, OP_READ);
+        selector.select(TIMEOUT);
+
+        Set<SelectionKey> keys = selector.selectedKeys();
+        if (!keys.isEmpty()) {
+            ByteBuffer buf = ByteBuffer.allocate(Packet.MIN_LEN);
+            buf.flip();
+            Packet recvPacket = Packet.fromBuffer(buf);
+
+            if (recvPacket.getType() == Packet.SYN_3) {
+
+                keys.clear();
+                return expectedSeqNum == recvPacket.getSequenceNumber();
+            }
+        }
+        return false;
     }
 
 
@@ -63,8 +84,8 @@ public class UDP {
             buf.flip();
             Packet recvPacket = Packet.fromBuffer(buf);
 
-            if (recvPacket.getType() == Packet.DATA_ACK) {
-                // if the packet is a DATA_ACK packet means the receiver
+            if (recvPacket.getType() == Packet.ACK) {
+                // if the packet is a ACK packet means the receiver
                 // acknowledge the sender's sequence number
                 long num = recvPacket.getSequenceNumber();
                 keys.clear();
