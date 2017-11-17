@@ -8,5 +8,8 @@ package assignment3.buffer;
  */
 
 
-public class ReceiveBuffer {
+public class ReceiverBuffer {
+    
+    public ReceiverBuffer() {
+    }
 }

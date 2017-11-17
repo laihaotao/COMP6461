@@ -22,7 +22,7 @@ public class Timer implements Runnable {
     private SocketAddress   routerAddress;
 
 
-    public Timer() {
+    public Timer(Packet p) {
     }
 
     public void registerCallback(TimerCallback timerCallback) {

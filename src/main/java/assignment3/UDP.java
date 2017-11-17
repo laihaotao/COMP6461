@@ -50,7 +50,7 @@ public class UDP {
         return -1;
     }
 
-    public static boolean recvSynAckAck(DatagramChannel c, long expectedSeqNum) throws IOException {
+    public static boolean recvSynAckAck(DatagramChannel c, long expectingSeqNum) throws IOException {
         c.configureBlocking(false);
         Selector selector = Selector.open();
         c.register(selector, OP_READ);
@@ -65,14 +65,14 @@ public class UDP {
             if (recvPacket.getType() == Packet.SYN_3) {
 
                 keys.clear();
-                return expectedSeqNum == recvPacket.getSequenceNumber();
+                return expectingSeqNum == recvPacket.getSequenceNumber();
             }
         }
         return false;
     }
 
 
-    public static boolean recvDataAck(DatagramChannel c, long waitingAckSeqNum) throws IOException {
+    public static boolean recvDataAck(DatagramChannel c, long expectingSeqNum) throws IOException {
         c.configureBlocking(false);
         Selector selector = Selector.open();
         c.register(selector, OP_READ);
@@ -89,7 +89,7 @@ public class UDP {
                 // acknowledge the sender's sequence number
                 long num = recvPacket.getSequenceNumber();
                 keys.clear();
-                return num == waitingAckSeqNum;
+                return num == expectingSeqNum;
             }
         }
         return false;

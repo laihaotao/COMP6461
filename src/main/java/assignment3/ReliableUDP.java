@@ -10,10 +10,12 @@ package assignment3;
 
 public class ReliableUDP {
 
+    // two arguments, data and address of the receiver
     public void send() {
 
     }
 
+    // receive the data and the sender's address
     public void receive() {
 
     }

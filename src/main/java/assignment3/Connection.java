@@ -17,7 +17,7 @@ import java.nio.channels.DatagramChannel;
 
 
 // theory of setup the connection (three ways handshake)
-// 1. randomly pick a initial sequence number and send a SYN_1 segment;
+// 1. randomly pick a initial sequence number and send a SYN segment;
 // 2. wait for the connection-granted segment from the targeted host;
 // 3. allocate buffers and variables for that connection, ack remote sequence number;
 
@@ -42,7 +42,6 @@ public class Connection {
         this.targetAddress = targetAddress;
         this.sendInitialSegment();
         this.buffer = new SenderBuffer(this.localSeqNum, this.remoteSeqNum);
-        new Thread(this.buffer).start();
     }
 
     public void send(byte[] message) throws IOException {
@@ -91,7 +90,7 @@ public class Connection {
                 UDP.send(channel, packet.toBuffer(), this.routerAddress);
 
                 // try to wait for the acknowledge from the remote host
-                // if the remoteSeq = -1, means cannot receive the SYN_2 need to resend
+                // if the remoteSeq = -1, means cannot receive the SYN need to resend
                 remoteSeq = UDP.recvSynAck(channel);
                 repeat--;
             } while (remoteSeq == -1 && repeat >= 0);
@@ -100,7 +99,7 @@ public class Connection {
                 // it means the initial packet cannot be acknowledged correctly
                 throw new HandShakingFailException();
             } else {
-                // otherwise, SYN_2 received correctly then send the third packet
+                // otherwise, SYN received correctly then send the third packet
                 this.remoteSeqNum = remoteSeq;
                 Packet packet = new Packet.Builder()
                         .setType(Packet.SYN_2)

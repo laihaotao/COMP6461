@@ -18,7 +18,7 @@ public class Window {
     public final static int READY    = 100;
     public final static int RECEIVED = 200;
 
-    private final int WINDOW_SIZE = 4;
+    public final int WINDOW_SIZE = 4;
 
     private SenderBuffer buffer;
     private List<Packet> window;
@@ -32,23 +32,22 @@ public class Window {
         }
     }
 
-    public void send() {
-        for (int i = 0; i < this.WINDOW_SIZE; i++) {
-            startTimerAndSendPacket();
-        }
+    public void add(Packet p) {
+        this.window.add(p);
+        this.startTimerAndSendPacket(p);
     }
+//
+//    public void init(List<Packet> buffer) {
+//        for (int i = 0; i < this.WINDOW_SIZE; i++) {
+//            if (!buffer.isEmpty()) {
+//                // always remove the first element from the sender buffer list
+//                this.window.add(buffer.remove(0));
+//            } else break;
+//        }
+//    }
 
-    public void init(List<Packet> ps) {
-        for (int i = 0; i < this.WINDOW_SIZE; i++) {
-            if (!ps.isEmpty()) {
-                // always remove the first element from the ps list
-                this.window.add(ps.remove(0));
-            }
-        }
-    }
-
-    private void startTimerAndSendPacket() {
-        Timer timer = new Timer();
+    private void startTimerAndSendPacket(Packet p) {
+        Timer timer = new Timer(p);
         Thread timerThread = new Thread(timer);
 
         TimerCallback callback = (recvDataAck, packet) -> {
@@ -77,13 +76,17 @@ public class Window {
         int n = 0;
         for (; n < this.WINDOW_SIZE; n++) {
             if (this.status[n] == Window.RECEIVED) {
-                this.window.remove(n);
+                this.window.remove(0);
+                this.buffer.remove();
             }
             else break;
         }
         // how many packets we remove means how many we can add
         if (n > 0) {
-            Collections.addAll(this.window, this.buffer.getFirstN(n));
+            List<Packet> tmp = this.buffer.getFirstN(n);
+            for (Packet p : tmp) {
+                this.startTimerAndSendPacket(p);
+            }
         }
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
  */
 
 
-public class SenderBuffer implements Runnable{
+public class SenderBuffer {
 
     private List<Packet> buffer;
     private Window       window;
@@ -29,22 +29,28 @@ public class SenderBuffer implements Runnable{
         this.window    = new Window(this);
     }
 
-    @Override
-    public void run() {
-        window.init(this.buffer);
-        window.send();
-    }
-
     public void add(Packet[] packets) {
-        Collections.addAll(this.buffer, packets);
+        for (Packet p : packets) {
+            int size = this.buffer.size();
+            this.buffer.add(p);
+            if (size < this.window.WINDOW_SIZE) {
+                this.window.add(p);
+            }
+        }
     }
 
-    public Packet[] getFirstN(int n) {
-        Packet[] packets = new Packet[n];
-        for (int i = 0; i < n; i++) {
-            packets[i] = this.buffer.remove(i);
+    public void remove() {
+        this.buffer.remove(0);
+    }
+
+    public List<Packet> getFirstN(int n) {
+        List<Packet> list = new LinkedList<>();
+        int          size = this.buffer.size();
+        int          j    = (n < size) ? n : size;
+        for (int i = 0; i < j; i++) {
+            list.add(this.buffer.get(i));
         }
-        return packets;
+        return list;
     }
 
 }
