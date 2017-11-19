@@ -1,7 +1,9 @@
-package assignment3;
+package assignment3.client;
 
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.Map;
 
 
 public class Window extends Observer {
+
+    private static final Logger logger = LoggerFactory.getLogger(Window.class);
 
     private final int WIN_SIZE = 4;
 
@@ -51,10 +55,24 @@ public class Window extends Observer {
                 if (isAckBasePacket(packet)) {
                     this.terminateTimer(packet.getSequenceNumber());
                     this.slideWindow();
+                    logger.debug("Current basePacket # {} was acked, slide down window",
+                            packet.getSequenceNumber());
                 } else {
                     this.terminateTimer(packet.getSequenceNumber());
+                    logger.debug("Packet # {} was acked, but not basePacket",
+                            packet.getSequenceNumber());
                 }
                 break;
+            case TIME_OUT:
+                // get current packet's timer, check the status
+                Timer timer = this.timerMap.get(packet.getSequenceNumber());
+                if (!timer.isHasAcked()) {
+                    // if the packet hasn't receive an
+                    // ack we have to retransmit it
+                    int nextSending = this.queue.indexOf(this.lastPacket) + 1;
+                    this.queue.add(nextSending, packet);
+                    logger.info("Time out happen packet # {}", packet.getSequenceNumber());
+                }
         }
     }
 
@@ -78,7 +96,8 @@ public class Window extends Observer {
         int i = this.getHasSth2Send() + 1;
         this.setHasSth2Send(i);
         // associate a timer with that packet
-        Timer timer = new Timer();
+        Timer timer = new Timer(packet);
+        timer.attach(this);
         this.timerMap.put(packet.getSequenceNumber(), timer);
     }
 
@@ -130,5 +149,9 @@ public class Window extends Observer {
 
     public synchronized void setHasSth2Send(int hasSth2Send) {
         this.hasSth2Send = hasSth2Send;
+    }
+
+    public Map<Long, Timer> getTimerMap() {
+        return timerMap;
     }
 }

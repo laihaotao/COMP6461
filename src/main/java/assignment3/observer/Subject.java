@@ -1,7 +1,8 @@
 package assignment3.observer;
 
-import assignment3.Packet;
+import assignment3.client.Packet;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,6 +17,10 @@ import java.util.Objects;
 public abstract class Subject {
 
     private List<Observer> list;
+
+    public Subject() {
+        this.list = new LinkedList<>();
+    }
 
     public void attach(Observer observer) {
         this.list.add(observer);

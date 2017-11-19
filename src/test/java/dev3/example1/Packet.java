@@ -1,4 +1,4 @@
-package assignment3;
+package dev3.example1;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -12,24 +12,17 @@ import java.nio.ByteOrder;
  */
 public class Packet {
 
-    public static final int DATA  = 0;
-    public static final int ACK   = 1;
-    public static final int SYN_1 = 2;
-    public static final int SYN_2 = 3;
-    public static final int SYN_3 = 4;
+    public static final int MIN_LEN = 11;
+    public static final int MAX_LEN = 11 + 1024;
 
-    public static final int MIN_LEN  = 11;
-    public static final int MAX_LEN  = 1024;
-    public static final int MAX_DATA = 1013;
-
-    private final int         type;
-    private final long        sequenceNumber;
+    private final int type;
+    private final long sequenceNumber;
     private final InetAddress peerAddress;
-    private final int         peerPort;
-    private final byte[]      payload;
+    private final int peerPort;
+    private final byte[] payload;
 
-    public Packet(int type, long sequenceNumber, InetAddress peerAddress,
-                  int peerPort, byte[] payload) {
+
+    public Packet(int type, long sequenceNumber, InetAddress peerAddress, int peerPort, byte[] payload) {
         this.type = type;
         this.sequenceNumber = sequenceNumber;
         this.peerAddress = peerAddress;
@@ -61,7 +54,7 @@ public class Packet {
      * Creates a builder from the current packet.
      * It's used to create another packet by re-using some parts of the current packet.
      */
-    public Builder toBuilder() {
+    public Builder toBuilder(){
         return new Builder()
                 .setType(type)
                 .setSequenceNumber(sequenceNumber)
@@ -98,7 +91,7 @@ public class Packet {
      */
     public byte[] toBytes() {
         ByteBuffer buf = toBuffer();
-        byte[]     raw = new byte[buf.remaining()];
+        byte[] raw = new byte[buf.remaining()];
         buf.get(raw);
         return raw;
     }
@@ -139,17 +132,15 @@ public class Packet {
 
     @Override
     public String toString() {
-        return String.format("#%d peer=%s:%d, size=%d", sequenceNumber, peerAddress, peerPort,
-                payload.length);
+        return String.format("#%d peer=%s:%d, size=%d", sequenceNumber, peerAddress, peerPort, payload.length);
     }
 
     public static class Builder {
-
-        private int         type;
-        private long        sequenceNumber;
+        private int type;
+        private long sequenceNumber;
         private InetAddress peerAddress;
-        private int         portNumber;
-        private byte[]      payload;
+        private int portNumber;
+        private byte[] payload;
 
         public Builder setType(int type) {
             this.type = type;

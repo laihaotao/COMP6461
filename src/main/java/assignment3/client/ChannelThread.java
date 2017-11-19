@@ -1,4 +1,4 @@
-package assignment3;
+package assignment3.client;
 
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Subject;
@@ -12,7 +12,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +87,7 @@ public class ChannelThread extends Subject implements Runnable {
         String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
         logger.info("Payload: {}",  payload);
 
-        // todo: parse the header to see the type of the packet
+        // parse the header to see the type of the packet
         this.handler(resp);
     }
 
@@ -111,8 +110,8 @@ public class ChannelThread extends Subject implements Runnable {
 
             // todo: if the packet is the data, tell the receiver buffer
             case Packet.DATA:
-            this.notifyObservers(NoticeMsg.DATA, packet);
-            break;
+                this.notifyObservers(NoticeMsg.DATA, packet);
+                break;
         }
     }
 
@@ -122,26 +121,29 @@ public class ChannelThread extends Subject implements Runnable {
             int i = 0;
             int time = this.window.getHasSth2Send();
             while (time > 0) {
-                c.send(this.queue.get(i).toBuffer(), this.rtrAddr);
+                Packet p = this.queue.get(i);
+                c.send(p.toBuffer(), this.rtrAddr);
+                new Thread(this.window.getTimerMap().get(p.getSequenceNumber())).start();
                 time--;
             }
             this.window.setHasSth2Send(time);
-            // todo: start a timer for each packet
         }
         k.interestOps(OP_READ);
     }
 
     public void send(Packet[] packets) {
         synchronized (this.queue) {
-            this.queue.addAll(Arrays.asList(packets));
-            this.notifyObservers(NoticeMsg.WIN_CHECK, null);
+            for (Packet p : packets) {
+                this.queue.add(p);
+                this.notifyObservers(NoticeMsg.WIN_CHECK, p);
+            }
         }
     }
 
     public void sendHandshakePacket(Packet packet) {
         synchronized (this.queue) {
             this.queue.add(packet);
-            this.notifyObservers(NoticeMsg.WIN_CHECK, null);
+            this.notifyObservers(NoticeMsg.WIN_CHECK, packet);
         }
     }
 

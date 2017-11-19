@@ -15,4 +15,5 @@ public enum NoticeMsg {
     ACK,
     DATA,
     WIN_CHECK,
+    TIME_OUT,
 }

@@ -1,4 +1,4 @@
-package assignment3;
+package assignment3.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,14 +29,14 @@ public class RUDP {
         this.remoteAddr = remoteAddr;
         this.remotePort = remotePort;
         this.localAddr  = new InetSocketAddress(localPort);
-        this.routerAddr = new InetSocketAddress("localhost", 8007);
+        this.routerAddr = new InetSocketAddress("localhost", 3000);
         this.init();
     }
 
     private void init() {
         try {
-            // open the datagram channel, keep it and using it for data
-            // sending and receiving
+            // open the datagram channel, keep it and
+            // using it for data sending and receiving
             this.channel = DatagramChannel.open();
             this.channel.bind(localAddr);
 

@@ -1,4 +1,4 @@
-package assignment3;
+package assignment3.client;
 
 import assignment3.exception.HandShakingFailException;
 import assignment3.observer.NoticeMsg;
@@ -32,7 +32,6 @@ public class Connection extends Observer {
     private boolean hasConnected;
 
     private InetSocketAddress targetAddress;
-    private SenderBuffer      buffer;
     private ChannelThread     channelThread;
 
     public Connection(ChannelThread channelThread) {
@@ -43,7 +42,6 @@ public class Connection extends Observer {
     public void connect(InetSocketAddress targetAddress) throws HandShakingFailException {
         this.targetAddress = targetAddress;
         this.sendInitialSegment();
-        this.buffer = new SenderBuffer(this.channelThread, this.localSeqNum, this.remoteSeqNum);
     }
 
     public void send(byte[] message) throws IOException {
@@ -84,9 +82,9 @@ public class Connection extends Observer {
                 .setSequenceNumber(this.localSeqNum)
                 .setPortNumber(this.targetAddress.getPort())
                 .setPeerAddress(this.targetAddress.getAddress())
-                .setPayload(null)
+                .setPayload("".getBytes())
                 .create();
-        // sendHandshakePacket to packet to the router
+        // send handshake packet to the router
         this.channelThread.sendHandshakePacket(packet);
         logger.debug("Handshaking #1 SYN packet has already sent out");
     }
