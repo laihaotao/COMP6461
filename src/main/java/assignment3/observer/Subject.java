@@ -1,6 +1,6 @@
 package assignment3.observer;
 
-import assignment3.client.Packet;
+import assignment3.Packet;
 
 import java.util.LinkedList;
 import java.util.List;

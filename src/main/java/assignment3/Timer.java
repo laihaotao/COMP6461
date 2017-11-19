@@ -1,4 +1,4 @@
-package assignment3.client;
+package assignment3;
 
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Subject;
@@ -13,7 +13,7 @@ import assignment3.observer.Subject;
 
 public class Timer extends Subject implements Runnable{
 
-    private final long TIME_OUT = 500;
+    private final long TIME_OUT = 2000;
 
     private Packet  packet;
     private boolean hasAcked;

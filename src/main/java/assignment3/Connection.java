@@ -1,5 +1,6 @@
-package assignment3.client;
+package assignment3;
 
+import assignment3.client.ChannelThread;
 import assignment3.exception.HandShakingFailException;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;
@@ -33,6 +34,8 @@ public class Connection extends Observer {
 
     private InetSocketAddress targetAddress;
     private ChannelThread     channelThread;
+
+    public Connection() { }
 
     public Connection(ChannelThread channelThread) {
         this.channelThread = channelThread;
@@ -89,7 +92,7 @@ public class Connection extends Observer {
         logger.debug("Handshaking #1 SYN packet has already sent out");
     }
 
-    private long updateLocalSequenceNum() {
+    protected long updateLocalSequenceNum() {
         long seq = this.localSeqNum;
         this.localSeqNum++;
         return seq;

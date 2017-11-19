@@ -1,4 +1,4 @@
-package assignment3.client;
+package assignment3;
 
 import java.io.IOException;
 import java.net.Inet4Address;

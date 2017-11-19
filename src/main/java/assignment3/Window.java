@@ -1,4 +1,4 @@
-package assignment3.client;
+package assignment3;
 
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;

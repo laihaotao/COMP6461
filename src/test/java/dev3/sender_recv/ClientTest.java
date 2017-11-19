@@ -1,6 +1,6 @@
 package dev3.sender_recv;
 
-import assignment3.client.RUDP;
+import assignment3.server.ClientRUDP;
 
 import java.io.IOException;
 
@@ -12,11 +12,11 @@ import java.io.IOException;
  */
 
 
-public class RecvTest {
+public class ClientTest {
 
 
     public static void main(String[] args) throws IOException {
-        RUDP rudp = new RUDP(8008, "localhost", 8007);
-        rudp.send("hello world");
+        ClientRUDP clientRudp = new ClientRUDP(8008, "localhost", 8007);
+        clientRudp.send("hello world");
     }
 }

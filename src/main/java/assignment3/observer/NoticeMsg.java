@@ -10,6 +10,7 @@ package assignment3.observer;
 
 public enum NoticeMsg {
 
+    SYN,
     SYN_ACK,
     SYN_ACK_ACK,
     ACK,

@@ -1,5 +1,7 @@
 package assignment3.client;
 
+import assignment3.Packet;
+import assignment3.Window;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Subject;
 import org.slf4j.Logger;
@@ -82,10 +84,12 @@ public class ChannelThread extends Subject implements Runnable {
         SocketAddress   router  = channel.receive(buf);
         buf.flip();
         Packet resp = Packet.fromBuffer(buf);
-        logger.info("Packet: {}", resp);
-        logger.info("Router: {}", router);
+        logger.debug("// ****************************************** //");
+        logger.debug("Packet: {}", resp);
+        logger.debug("Router: {}", router);
         String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
-        logger.info("Payload: {}",  payload);
+        logger.debug("Payload: {}",  payload);
+        logger.debug("// ****************************************** //");
 
         // parse the header to see the type of the packet
         this.handler(resp);
@@ -95,6 +99,9 @@ public class ChannelThread extends Subject implements Runnable {
         int type = packet.getType();
         switch (type) {
             // ** if the packet is a handshaking packet, tell the connection
+            case Packet.SYN_1:
+                this.notifyObservers(NoticeMsg.SYN, packet);
+                break;
             case Packet.SYN_2:
                 this.notifyObservers(NoticeMsg.SYN_ACK, packet);
                 break;

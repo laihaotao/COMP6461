@@ -1,4 +1,7 @@
-package assignment3.client;
+package assignment3.server;
+
+import assignment3.Connection;
+import assignment3.client.ChannelThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -13,9 +16,8 @@ import java.nio.channels.DatagramChannel;
  */
 
 
-public class RUDP {
+public class ClientRUDP {
 
-    private int    localPort;
     private String remoteAddr;
     private int    remotePort;
 
@@ -24,8 +26,7 @@ public class RUDP {
     private SocketAddress   routerAddr;
     private Connection      connection;
 
-    public RUDP(int localPort, String remoteAddr, int remotePort) {
-        this.localPort  = localPort;
+    public ClientRUDP(int localPort, String remoteAddr, int remotePort) {
         this.remoteAddr = remoteAddr;
         this.remotePort = remotePort;
         this.localAddr  = new InetSocketAddress(localPort);
@@ -42,7 +43,7 @@ public class RUDP {
 
             // start a thread to listen for the incoming data
             ChannelThread senderThread = new ChannelThread(this.channel, this.routerAddr);
-            Thread recvThread          = new Thread(senderThread);
+            Thread        recvThread   = new Thread(senderThread);
             this.connection            = new Connection(senderThread);
             senderThread.attach(this.connection);
             recvThread.start();
