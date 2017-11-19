@@ -1,12 +1,14 @@
 package assignment3;
 
-import assignment3.buffer.SenderBuffer;
 import assignment3.exception.HandShakingFailException;
+import assignment3.observer.NoticeMsg;
+import assignment3.observer.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.channels.DatagramChannel;
+import java.util.Random;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -17,38 +19,40 @@ import java.nio.channels.DatagramChannel;
 
 
 // theory of setup the connection (three ways handshake)
-// 1. randomly pick a initial sequence number and send a SYN segment;
+// 1. randomly pick a initial sequence number and sendHandshakePacket a SYN segment;
 // 2. wait for the connection-granted segment from the targeted host;
 // 3. allocate buffers and variables for that connection, ack remote sequence number;
 
-public class Connection {
+public class Connection extends Observer {
+
+    private static final Logger logger = LoggerFactory.getLogger(Connection.class);
 
     private long    localSeqNum;
     private long    remoteSeqNum;
-    private boolean hasHandShake;
+    private boolean hasConnected;
 
-    private SocketAddress     routerAddress;
     private InetSocketAddress targetAddress;
     private SenderBuffer      buffer;
+    private ChannelThread     channelThread;
 
-    public Connection() {
-    }
-
-    public Connection(InetSocketAddress targetAddress) {
-        this.connect(targetAddress);
+    public Connection(ChannelThread channelThread) {
+        this.channelThread = channelThread;
+        this.localSeqNum = (long) new Random().nextInt();
     }
 
     public void connect(InetSocketAddress targetAddress) throws HandShakingFailException {
         this.targetAddress = targetAddress;
         this.sendInitialSegment();
-        this.buffer = new SenderBuffer(this.localSeqNum, this.remoteSeqNum);
+        this.buffer = new SenderBuffer(this.channelThread, this.localSeqNum, this.remoteSeqNum);
     }
 
     public void send(byte[] message) throws IOException {
-        // break the message into chunks
-        Packet[] packets = makeChunks(message);
-        // put all chunks into the sender buffer
-        this.buffer.add(packets);
+        if (this.hasConnected) {
+            // break the message into chunks
+            Packet[] packets = makeChunks(message);
+            // put all chunks into the SenderThread buffer
+            this.channelThread.send(packets);
+        }
     }
 
     private Packet[] makeChunks(byte[] message) {
@@ -72,55 +76,47 @@ public class Connection {
         return packets;
     }
 
-    private void sendInitialSegment() throws HandShakingFailException {
-        int  repeat = 5;
-        long remoteSeq;
-        try (DatagramChannel channel = DatagramChannel.open()) {
-            do {
-                this.localSeqNum = this.updateLocalSequenceNum();
-                // create a initial handshake packet
-                Packet packet = new Packet.Builder()
-                        .setType(Packet.SYN_1)
-                        .setSequenceNumber(this.localSeqNum)
-                        .setPortNumber(this.targetAddress.getPort())
-                        .setPeerAddress(this.targetAddress.getAddress())
-                        .setPayload(null)
-                        .create();
-                // send to packet to the router
-                UDP.send(channel, packet.toBuffer(), this.routerAddress);
+    private void sendInitialSegment() {
+        this.localSeqNum = this.updateLocalSequenceNum();
+        // create a initial handshake packet
+        Packet packet = new Packet.Builder()
+                .setType(Packet.SYN_1)
+                .setSequenceNumber(this.localSeqNum)
+                .setPortNumber(this.targetAddress.getPort())
+                .setPeerAddress(this.targetAddress.getAddress())
+                .setPayload(null)
+                .create();
+        // sendHandshakePacket to packet to the router
+        this.channelThread.sendHandshakePacket(packet);
+        logger.debug("Handshaking #1 SYN packet has already sent out");
+    }
 
-                // try to wait for the acknowledge from the remote host
-                // if the remoteSeq = -1, means cannot receive the SYN need to resend
-                remoteSeq = UDP.recvSynAck(channel);
-                repeat--;
-            } while (remoteSeq == -1 && repeat >= 0);
+    private long updateLocalSequenceNum() {
+        long seq = this.localSeqNum;
+        this.localSeqNum++;
+        return seq;
+    }
 
-            if (repeat < 0) {
-                // it means the initial packet cannot be acknowledged correctly
-                throw new HandShakingFailException();
-            } else {
-                // otherwise, SYN received correctly then send the third packet
-                this.remoteSeqNum = remoteSeq;
-                Packet packet = new Packet.Builder()
+    @Override
+    protected void update(NoticeMsg msg, Packet recvPacket) {
+        switch (msg) {
+            case SYN_ACK:
+                logger.debug("Handshaking #2 ACK_SYN packet has received");
+                this.remoteSeqNum = recvPacket.getSequenceNumber();
+                Packet p = new Packet.Builder()
                         .setType(Packet.SYN_2)
                         .setSequenceNumber(this.remoteSeqNum + 1)
                         .setPortNumber(this.targetAddress.getPort())
                         .setPeerAddress(this.targetAddress.getAddress())
                         .setPayload(null)
                         .create();
-                UDP.send(channel, packet.toBuffer(), this.routerAddress);
-                if (!UDP.recvSynAckAck(channel, this.localSeqNum + 1)) {
-                    throw new HandShakingFailException();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+                this.channelThread.sendHandshakePacket(p);
+                logger.debug("Handshaking #3 ACK_SYN packet has sent out");
+                break;
+            case SYN_ACK_ACK:
+                this.hasConnected = true;
+                logger.debug("Handshaking success, connection established");
+                break;
         }
     }
-
-    private long updateLocalSequenceNum() {
-        // todo: need to design the sequence number selection algorithm
-        return 1L;
-    }
-
 }
