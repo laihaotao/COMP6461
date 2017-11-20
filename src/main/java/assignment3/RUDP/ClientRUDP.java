@@ -1,8 +1,7 @@
-package assignment3.server;
+package assignment3.RUDP;
 
 import assignment3.Connection;
-import assignment3.ServerConnection;
-import assignment3.client.ChannelThread;
+import assignment3.ChannelThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,20 +10,26 @@ import java.nio.channels.DatagramChannel;
 
 /**
  * Author:  Eric(Haotao) Lai
- * Date:    2017-11-19
+ * Date:    2017-11-12
  * E-mail:  haotao.lai@gmail.com
  * Website: http://laihaotao.me
  */
 
 
-public class ServerRUDP {
+public class ClientRUDP {
+
+    private String remoteAddr;
+    private int    remotePort;
 
     private DatagramChannel channel;
+    private ChannelThread   thread;
     private SocketAddress   localAddr;
     private SocketAddress   routerAddr;
     private Connection      connection;
 
-    public ServerRUDP(int localPort) {
+    public ClientRUDP(int localPort, String remoteAddr, int remotePort) {
+        this.remoteAddr = remoteAddr;
+        this.remotePort = remotePort;
         this.localAddr  = new InetSocketAddress(localPort);
         this.routerAddr = new InetSocketAddress("localhost", 3000);
         this.init();
@@ -38,11 +43,15 @@ public class ServerRUDP {
             this.channel.bind(localAddr);
 
             // start a thread to listen for the incoming data
-            ChannelThread channelThread = new ChannelThread(this.channel, this.routerAddr);
-            Thread        recvThread    = new Thread(channelThread);
-            this.connection             = new ServerConnection(channelThread);
-            channelThread.attach(this.connection);
+            this.thread = new ChannelThread(this.channel, this.routerAddr);
+            Thread recvThread = new Thread(thread);
+            this.connection = new Connection(thread, this.routerAddr);
+            thread.attach(this.connection);
+            thread.bind(this.connection);
             recvThread.start();
+
+            // build the connection between sender and receiver
+            this.connection.connect(new InetSocketAddress(this.remoteAddr, this.remotePort));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,7 +60,7 @@ public class ServerRUDP {
 
     public void send(String message) throws IOException {
         // call the connection's sendHandshakePacket method
-        this.connection.send(message.getBytes("utf-8"));
+        this.thread.send(message.getBytes("utf-8"));
     }
 
     public void receive() {

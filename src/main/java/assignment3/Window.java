@@ -23,15 +23,17 @@ public class Window extends Observer {
 
     private final int WIN_SIZE = 4;
 
+    private ChannelThread    thread;
     private List<Packet>     queue;
     private Map<Long, Timer> timerMap;
 
-    private int       hasSth2Send;
-    private Packet    basePacket;
-    private Packet    lastPacket;
+    private int    hasSth2Send;
+    private Packet basePacket;
+    private Packet lastPacket;
 
-    public Window(List<Packet> queue) {
+    public Window(List<Packet> queue, ChannelThread channelThread) {
         this.queue    = queue;
+        this.thread   = channelThread;
         this.timerMap = new HashMap<>();
     }
 
@@ -70,7 +72,7 @@ public class Window extends Observer {
                     // if the packet hasn't receive an
                     // ack we have to retransmit it
                     int nextSending = this.queue.indexOf(this.lastPacket) + 1;
-                    this.queue.add(nextSending, packet);
+                    this.thread.send(nextSending, packet);
                     logger.info("Time out happen packet # {}", packet.getSequenceNumber());
                 }
         }

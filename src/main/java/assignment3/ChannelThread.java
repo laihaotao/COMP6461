@@ -1,7 +1,5 @@
-package assignment3.client;
+package assignment3;
 
-import assignment3.Packet;
-import assignment3.Window;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Subject;
 import org.slf4j.Logger;
@@ -34,6 +32,7 @@ public class ChannelThread extends Subject implements Runnable {
 
     private final List<Packet> queue;
 
+    private Connection      connection;
     private SocketAddress   rtrAddr;
     private DatagramChannel channel;
     private Selector        selector;
@@ -43,7 +42,7 @@ public class ChannelThread extends Subject implements Runnable {
         this.rtrAddr   = rtrAddr;
         this.channel   = channel;
         this.queue     = new LinkedList<>();
-        this.window    = new Window(this.queue);
+        this.window    = new Window(this.queue, this);
         this.attach(this.window);
     }
 
@@ -55,7 +54,8 @@ public class ChannelThread extends Subject implements Runnable {
             this.channel.register(this.selector, OP_READ);
             while (true) {
 
-                if (this.window.getHasSth2Send() > 0) {
+                if (this.connection != null && this.connection.isConnected()
+                    && this.window.getHasSth2Send() > 0) {
                     SelectionKey key = this.channel.keyFor(this.selector);
                     key.interestOps(SelectionKey.OP_WRITE);
                 }
@@ -84,15 +84,23 @@ public class ChannelThread extends Subject implements Runnable {
         SocketAddress   router  = channel.receive(buf);
         buf.flip();
         Packet resp = Packet.fromBuffer(buf);
-        logger.debug("// ****************************************** //");
-        logger.debug("Packet: {}", resp);
-        logger.debug("Router: {}", router);
-        String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
-        logger.debug("Payload: {}",  payload);
-        logger.debug("// ****************************************** //");
+        printPacketDetail(router, resp, true);
 
         // parse the header to see the type of the packet
         this.handler(resp);
+    }
+
+    private void printPacketDetail(SocketAddress router, Packet resp, boolean isRecv) {
+        if (isRecv) {
+            logger.debug("// recv Packets ************************** //");
+        }
+        else {
+            logger.debug("// send Packets ************************** //");
+        }
+            logger.debug("Packet: {}", resp);
+        String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
+        logger.debug("Payload: {}",  payload);
+        logger.debug("// ****************************************** //");
     }
 
     private void handler(Packet packet) {
@@ -130,12 +138,20 @@ public class ChannelThread extends Subject implements Runnable {
             while (time > 0) {
                 Packet p = this.queue.get(i);
                 c.send(p.toBuffer(), this.rtrAddr);
+                printPacketDetail(this.rtrAddr, p, false);
                 new Thread(this.window.getTimerMap().get(p.getSequenceNumber())).start();
                 time--;
             }
             this.window.setHasSth2Send(time);
         }
         k.interestOps(OP_READ);
+    }
+
+    public void send(byte[] message) throws IOException {
+        // break the message into chunks
+        Packet[] packets = this.connection.makeChunks(message);
+        // put all chunks into the SenderThread buffer
+        this.send(packets);
     }
 
     public void send(Packet[] packets) {
@@ -147,12 +163,19 @@ public class ChannelThread extends Subject implements Runnable {
         }
     }
 
-    public void sendHandshakePacket(Packet packet) {
+    public void send(int index, Packet packet) {
         synchronized (this.queue) {
-            this.queue.add(packet);
+            this.queue.add(index, packet);
             this.notifyObservers(NoticeMsg.WIN_CHECK, packet);
         }
     }
 
+    public DatagramChannel getChannel() {
+        return channel;
+    }
+
+    public void bind(Connection connection) {
+        this.connection = connection;
+    }
 }
 

@@ -1,14 +1,13 @@
 package assignment3;
 
-import assignment3.client.ChannelThread;
 import assignment3.observer.NoticeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Random;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -24,18 +23,22 @@ public class ServerConnection extends Connection {
 
     private long remoteSeqNum;
     private long localSeqNum;
+    private SocketAddress router;
+
 
     private InetSocketAddress targetAddress;
     private ChannelThread     channelThread;
 
-    public ServerConnection(ChannelThread channelThread) {
+    public ServerConnection(ChannelThread channelThread, SocketAddress routerAddr) {
         super();
         this.channelThread = channelThread;
-        this.localSeqNum   = (long) new Random().nextInt();
+        this.router = routerAddr;
+//        this.localSeqNum   = (long) new Random().nextInt();
+        this.localSeqNum = 8000;
     }
 
     @Override
-    protected void update(NoticeMsg msg, Packet recvPacket) {
+    protected void update(NoticeMsg msg, Packet recvPacket) throws IOException {
         switch (msg) {
             case SYN:
                 this.answerSYN(recvPacket);
@@ -46,7 +49,7 @@ public class ServerConnection extends Connection {
         }
     }
 
-    private void answerSYN(Packet recvPacket) {
+    private void answerSYN(Packet recvPacket) throws IOException {
         InetAddress addr = recvPacket.getPeerAddress();
         this.targetAddress = new InetSocketAddress(addr, recvPacket.getPeerPort());
         logger.debug("Handshaking #1 SYN packet has received");
@@ -58,13 +61,12 @@ public class ServerConnection extends Connection {
                 .setPeerAddress(this.targetAddress.getAddress())
                 .setPayload("".getBytes())
                 .create();
-        this.channelThread.sendHandshakePacket(p);
+        this.channelThread.getChannel().send(p.toBuffer(), this.router);
         logger.debug("Handshaking #2 ACK_SYN packet has sent out");
     }
 
-    private void answerSYNACK(Packet recvPacket) {
+    private void answerSYNACK(Packet recvPacket) throws IOException {
         logger.debug("Handshaking #3 SYN packet has received");
-        this.remoteSeqNum = recvPacket.getSequenceNumber();
         Packet p = new Packet.Builder()
                 .setType(Packet.SYN_3)
                 .setSequenceNumber(this.remoteSeqNum + 1)
@@ -72,7 +74,7 @@ public class ServerConnection extends Connection {
                 .setPeerAddress(this.targetAddress.getAddress())
                 .setPayload("".getBytes())
                 .create();
-        this.channelThread.sendHandshakePacket(p);
+        this.channelThread.getChannel().send(p.toBuffer(), this.router);
         logger.debug("Handshaking #4 SYN_ACK_ACK packet has sent out");
     }
 }

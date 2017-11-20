@@ -1,6 +1,5 @@
 package assignment3;
 
-import assignment3.client.ChannelThread;
 import assignment3.exception.HandShakingFailException;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;
@@ -9,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Random;
+import java.net.SocketAddress;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -28,35 +27,31 @@ public class Connection extends Observer {
 
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
 
-    private long    localSeqNum;
-    private long    remoteSeqNum;
-    private boolean hasConnected;
+    private long          localSeqNum;
+    private long          remoteSeqNum;
+    private long          handshakeNum;
+    private boolean       connected;
+    private SocketAddress router;
 
     private InetSocketAddress targetAddress;
     private ChannelThread     channelThread;
 
     public Connection() { }
 
-    public Connection(ChannelThread channelThread) {
+    public Connection(ChannelThread channelThread, SocketAddress routerAddr) {
         this.channelThread = channelThread;
-        this.localSeqNum = (long) new Random().nextInt();
+        this.router = routerAddr;
+//        this.localSeqNum = (long) new Random().nextInt();
+        this.localSeqNum = 1000;
     }
 
-    public void connect(InetSocketAddress targetAddress) throws HandShakingFailException {
+    public void connect(InetSocketAddress targetAddress)
+            throws HandShakingFailException, IOException {
         this.targetAddress = targetAddress;
         this.sendInitialSegment();
     }
 
-    public void send(byte[] message) throws IOException {
-        if (this.hasConnected) {
-            // break the message into chunks
-            Packet[] packets = makeChunks(message);
-            // put all chunks into the SenderThread buffer
-            this.channelThread.send(packets);
-        }
-    }
-
-    private Packet[] makeChunks(byte[] message) {
+    public Packet[] makeChunks(byte[] message) {
         int      mLen      = message.length;
         int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
         int      offset    = 0;
@@ -67,7 +62,7 @@ public class Connection extends Observer {
             System.arraycopy(message, offset, tmp, 0, len);
             Packet p = new Packet.Builder()
                     .setType(Packet.DATA)
-                    .setSequenceNumber(this.localSeqNum++)
+                    .setSequenceNumber(++this.localSeqNum)
                     .setPortNumber(this.targetAddress.getPort())
                     .setPeerAddress(this.targetAddress.getAddress())
                     .setPayload(tmp)
@@ -77,8 +72,8 @@ public class Connection extends Observer {
         return packets;
     }
 
-    private void sendInitialSegment() {
-        this.localSeqNum = this.updateLocalSequenceNum();
+    private void sendInitialSegment() throws IOException {
+        this.handshakeNum = this.localSeqNum;
         // create a initial handshake packet
         Packet packet = new Packet.Builder()
                 .setType(Packet.SYN_1)
@@ -88,36 +83,36 @@ public class Connection extends Observer {
                 .setPayload("".getBytes())
                 .create();
         // send handshake packet to the router
-        this.channelThread.sendHandshakePacket(packet);
+        this.channelThread.getChannel().send(packet.toBuffer(), router);
         logger.debug("Handshaking #1 SYN packet has already sent out");
     }
 
-    protected long updateLocalSequenceNum() {
-        long seq = this.localSeqNum;
-        this.localSeqNum++;
-        return seq;
-    }
-
     @Override
-    protected void update(NoticeMsg msg, Packet recvPacket) {
+    protected void update(NoticeMsg msg, Packet recvPacket) throws IOException {
         switch (msg) {
             case SYN_ACK:
                 logger.debug("Handshaking #2 ACK_SYN packet has received");
                 this.remoteSeqNum = recvPacket.getSequenceNumber();
                 Packet p = new Packet.Builder()
                         .setType(Packet.SYN_2)
-                        .setSequenceNumber(this.remoteSeqNum + 1)
+                        .setSequenceNumber((this.remoteSeqNum + 1))
                         .setPortNumber(this.targetAddress.getPort())
                         .setPeerAddress(this.targetAddress.getAddress())
-                        .setPayload(null)
+                        .setPayload("".getBytes())
                         .create();
-                this.channelThread.sendHandshakePacket(p);
+                this.channelThread.getChannel().send(p.toBuffer(), this.router);
                 logger.debug("Handshaking #3 ACK_SYN packet has sent out");
                 break;
             case SYN_ACK_ACK:
-                this.hasConnected = true;
-                logger.debug("Handshaking success, connection established");
+                if (recvPacket.getSequenceNumber() == this.handshakeNum + 1) {
+                    this.connected = true;
+                    logger.debug("Handshaking success, connection established");
+                }
                 break;
         }
+    }
+
+    public synchronized boolean isConnected() {
+        return connected;
     }
 }

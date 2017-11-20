@@ -139,7 +139,7 @@ public class Packet {
 
     @Override
     public String toString() {
-        return String.format("#%d peer=%s:%d, size=%d", sequenceNumber, peerAddress, peerPort,
+        return String.format("type:%d #%d peer=%s:%d, size=%d", type, sequenceNumber, peerAddress, peerPort,
                 payload.length);
     }
 

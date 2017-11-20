@@ -1,6 +1,6 @@
 package dev3.sender_recv;
 
-import assignment3.server.ServerRUDP;
+import assignment3.RUDP.ServerRUDP;
 
 /**
  * Author:  Eric(Haotao) Lai

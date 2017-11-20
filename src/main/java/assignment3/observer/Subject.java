@@ -2,6 +2,7 @@ package assignment3.observer;
 
 import assignment3.Packet;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +37,11 @@ public abstract class Subject {
 
     protected void notifyObservers(NoticeMsg msg, Packet packet) {
         for (Observer observer : list) {
-            observer.update(msg, packet);
+            try {
+                observer.update(msg, packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

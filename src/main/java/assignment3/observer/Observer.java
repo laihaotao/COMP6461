@@ -2,6 +2,8 @@ package assignment3.observer;
 
 import assignment3.Packet;
 
+import java.io.IOException;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-11-16
@@ -12,5 +14,5 @@ import assignment3.Packet;
 
 public abstract class Observer {
 
-    protected abstract void update(NoticeMsg msg, Packet packet);
+    protected abstract void update(NoticeMsg msg, Packet packet) throws IOException;
 }
