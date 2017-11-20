@@ -92,24 +92,22 @@ public class Connection extends Observer {
     protected void update(NoticeMsg msg, Packet recvPacket) throws IOException {
         switch (msg) {
             case SYN_ACK:
-                if (recvPacket.getSequenceNumber() == localSeqNum + 1) {
-                    logger.debug("Handshaking #2 ACK_SYN packet has received");
-                    this.remoteSeqNum = recvPacket.getSequenceNumber();
-                    Packet p = new Packet.Builder()
-                            .setType(Packet.SYN_2)
-                            .setSequenceNumber((this.remoteSeqNum + 1))
-                            .setPortNumber(this.targetAddress.getPort())
-                            .setPeerAddress(this.targetAddress.getAddress())
-                            .setPayload("".getBytes())
-                            .create();
-                    this.channelThread.getChannel().send(p.toBuffer(), this.router);
-                    logger.debug("Handshaking #3 ACK_SYN packet has sent out");
-                }
+                logger.debug("Handshaking #2 ACK_SYN packet has received");
+                this.remoteSeqNum = recvPacket.getSequenceNumber();
+                Packet p = new Packet.Builder()
+                        .setType(Packet.SYN_2)
+                        .setSequenceNumber((this.remoteSeqNum + 1))
+                        .setPortNumber(this.targetAddress.getPort())
+                        .setPeerAddress(this.targetAddress.getAddress())
+                        .setPayload("".getBytes())
+                        .create();
+                this.channelThread.getChannel().send(p.toBuffer(), this.router);
+                logger.debug("Handshaking #3 ACK_SYN packet has sent out");
                 break;
             case SYN_ACK_ACK:
                 if (recvPacket.getSequenceNumber() == this.handshakeNum + 1) {
                     this.connected = true;
-                    logger.debug("Handshaking success, connection established");
+                    logger.info("Handshaking success, connection established");
                 }
                 break;
         }

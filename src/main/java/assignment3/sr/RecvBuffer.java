@@ -3,8 +3,12 @@ package assignment3.sr;
 import assignment3.RUDP.Packet;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,25 +23,36 @@ import java.util.List;
 
 public class RecvBuffer extends Observer{
 
+    private static final Logger logger = LoggerFactory.getLogger(ChannelThread.class);
+
     private final int WIN_SIZE = 4;
 
     private long          curMinNum;
-    private long          continueSeqNum;
     private List<Byte>    buffer;
     private Packet[]      window;
     private ChannelThread thread;
+    private SocketAddress rounter;
 
-    public RecvBuffer(ChannelThread thread) {
+    public RecvBuffer(ChannelThread thread, SocketAddress rounter) {
         this.thread = thread;
         this.buffer = new LinkedList<>();
         this.window = new Packet[this.WIN_SIZE];
+        this.rounter = rounter;
     }
 
     @Override
     protected void update(NoticeMsg msg, Packet packet) throws IOException {
         if (msg == NoticeMsg.DATA) {
+            logger.debug("RecvBuffer receive a packet, handling ...");
             Packet p = this.handleDataPacket(packet);
-            this.thread.send(p);
+            SocketAddress addr = new InetSocketAddress(p.getPeerAddress(), p.getPeerPort());
+            // ACK do not need to go through the thread since it doesn't need a timer
+            this.thread.getChannel().send(p.toBuffer(), this.rounter);
+            logger.debug("An ACK for packet #{} has been sent", packet.getSequenceNumber());
+        } else if (msg == NoticeMsg.SYN) {
+            long initialSeqNum = packet.getSequenceNumber() + 1;
+            logger.debug("RecvBuffer receive the initial seqNum #{}", initialSeqNum);
+            this.curMinNum = initialSeqNum;
         }
     }
 
@@ -69,6 +84,7 @@ public class RecvBuffer extends Observer{
     }
 
     private Packet constructAckPacket(Packet p) {
+        logger.debug("Generate a ACK for packet #{}", p.getSequenceNumber());
         return new Packet.Builder()
                 .setType(Packet.ACK)
                 .setSequenceNumber((p.getSequenceNumber()))
@@ -86,6 +102,7 @@ public class RecvBuffer extends Observer{
             // otherwise, add the payload to the buffer
             byte[] payload = this.window[idx].getPayload();
             for (byte b : payload) {
+                if (b == 0) break;
                 this.buffer.add(b);
             }
         }

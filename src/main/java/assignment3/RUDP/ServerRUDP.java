@@ -1,9 +1,9 @@
 package assignment3.RUDP;
 
+import assignment3.sr.ChannelThread;
 import assignment3.sr.Connection;
 import assignment3.sr.RecvBuffer;
 import assignment3.sr.ServerConnection;
-import assignment3.sr.ChannelThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,7 @@ public class ServerRUDP {
 
 
     private DatagramChannel channel;
+    private Connection      connection;
     private ChannelThread   thread;
     private RecvBuffer      recvBuffer;
     private SocketAddress   localAddr;
@@ -39,21 +40,24 @@ public class ServerRUDP {
     }
 
     private void init() throws IOException {
-        this.channel    = DatagramChannel.open();
-        this.thread     = new ChannelThread(this.channel, this.routerAddr);
 
         // open the datagram channel, keep it and
         // using it for data sending and receiving
+        this.channel    = DatagramChannel.open();
         this.channel.bind(this.localAddr);
         logger.debug("Server is listening on: " + this.localAddr);
 
         // start a thread to listen for the incoming data
+        this.thread       = new ChannelThread(this.channel, this.routerAddr);
         Thread recvThread = new Thread(this.thread);
-        recvThread.start();
+        this.connection   = new ServerConnection(this.thread, this.routerAddr);
+        this.thread.attach(this.connection);
+        this.thread.bind(this.connection);
 
         // allocate the data received buffer
-        this.recvBuffer = new RecvBuffer(this.thread);
+        this.recvBuffer = new RecvBuffer(this.thread, this.routerAddr);
         this.thread.attach(this.recvBuffer);
+        recvThread.start();
     }
 
     public void send(String message) throws IOException {

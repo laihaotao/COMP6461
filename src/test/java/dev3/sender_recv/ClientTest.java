@@ -15,7 +15,25 @@ import java.io.IOException;
 public class ClientTest {
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        try {
+
+//            new ClientTest().singlePacket();
+
+            new ClientTest().multiplePacket();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void multiplePacket() throws IOException {
+        ClientRUDP clientRudp = new ClientRUDP(8098, "localhost", 8007);
+        clientRudp.sendMultiplePacket(10);
+    }
+
+    public void singlePacket() throws IOException {
         ClientRUDP clientRudp = new ClientRUDP(8098, "localhost", 8007);
 
         clientRudp.send("hello world");

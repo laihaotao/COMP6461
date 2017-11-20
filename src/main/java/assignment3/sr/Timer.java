@@ -17,11 +17,11 @@ public class Timer extends Subject implements Runnable{
     private final long TIME_OUT = 2000;
 
     private Packet  packet;
-    private boolean hasAcked;
+    private boolean isAcked;
 
     public Timer(Packet packet) {
         this.packet   = packet;
-        this.hasAcked = false;
+        this.isAcked = false;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class Timer extends Subject implements Runnable{
         this.notifyObservers(NoticeMsg.TIME_OUT, packet);
     }
 
-    public boolean isHasAcked() {
-        return hasAcked;
+    public boolean isAcked() {
+        return isAcked;
     }
 
-    public void setHasAcked(boolean hasAcked) {
-        this.hasAcked = hasAcked;
+    public void setAcked(boolean acked) {
+        this.isAcked = acked;
     }
 
 }
