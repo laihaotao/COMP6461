@@ -1,11 +1,15 @@
 package assignment3.RUDP;
 
-import assignment3.Connection;
-import assignment3.ChannelThread;
+import assignment3.sr.Connection;
+import assignment3.sr.ChannelThread;
+import assignment3.sr.RecvBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 /**
@@ -18,52 +22,43 @@ import java.nio.channels.DatagramChannel;
 
 public class ClientRUDP {
 
-    private String remoteAddr;
-    private int    remotePort;
+    private static final Logger logger = LoggerFactory.getLogger(ClientRUDP.class);
 
     private DatagramChannel channel;
     private ChannelThread   thread;
+    private RecvBuffer      recvBuffer;
     private SocketAddress   localAddr;
     private SocketAddress   routerAddr;
-    private Connection      connection;
 
-    public ClientRUDP(int localPort, String remoteAddr, int remotePort) {
-        this.remoteAddr = remoteAddr;
-        this.remotePort = remotePort;
+    public ClientRUDP(int localPort, String remoteAddr, int remotePort) throws IOException {
         this.localAddr  = new InetSocketAddress(localPort);
         this.routerAddr = new InetSocketAddress("localhost", 3000);
-        this.init();
+        this.init(remoteAddr, remotePort);
     }
 
-    private void init() {
-        try {
-            // open the datagram channel, keep it and
-            // using it for data sending and receiving
-            this.channel = DatagramChannel.open();
-            this.channel.bind(localAddr);
+    private void init(String remoteAddr, int remotePort) throws IOException {
+        this.channel = DatagramChannel.open();
+        this.thread = new ChannelThread(this.channel, this.routerAddr, remoteAddr, remotePort);
 
-            // start a thread to listen for the incoming data
-            this.thread = new ChannelThread(this.channel, this.routerAddr);
-            Thread recvThread = new Thread(thread);
-            this.connection = new Connection(thread, this.routerAddr);
-            thread.attach(this.connection);
-            thread.bind(this.connection);
-            recvThread.start();
+        // open the datagram channel, keep it and
+        // using it for data sending and receiving
+        logger.debug("Client is binding to: " + this.localAddr);
+//        this.channel.bind(this.localAddr);
 
-            // build the connection between sender and receiver
-            this.connection.connect(new InetSocketAddress(this.remoteAddr, this.remotePort));
+        // start a thread to listen for the incoming data
+        Thread recvThread = new Thread(this.thread);
+        recvThread.start();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // allocate the data received buffer
+        this.recvBuffer = new RecvBuffer(this.thread);
+        this.thread.attach(this.recvBuffer);
     }
 
     public void send(String message) throws IOException {
-        // call the connection's sendHandshakePacket method
         this.thread.send(message.getBytes("utf-8"));
     }
 
-    public void receive() {
-
+    public int receive(ByteBuffer result) {
+        return this.recvBuffer.receive(result);
     }
 }

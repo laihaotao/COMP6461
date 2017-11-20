@@ -2,6 +2,8 @@ package dev3.sender_recv;
 
 import assignment3.RUDP.ServerRUDP;
 
+import java.io.IOException;
+
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-11-19
@@ -13,6 +15,10 @@ import assignment3.RUDP.ServerRUDP;
 public class ServerTest {
 
     public static void main(String[] args) {
-        ServerRUDP server = new ServerRUDP(8007);
+        try {
+            ServerRUDP server = new ServerRUDP(8007);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

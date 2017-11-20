@@ -16,12 +16,8 @@ public class ClientTest {
 
 
     public static void main(String[] args) throws IOException {
-        ClientRUDP clientRudp = new ClientRUDP(8008, "localhost", 8007);
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        ClientRUDP clientRudp = new ClientRUDP(8098, "localhost", 8007);
+
         clientRudp.send("hello world");
     }
 }

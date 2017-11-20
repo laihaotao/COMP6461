@@ -1,5 +1,6 @@
-package assignment3;
+package assignment3.sr;
 
+import assignment3.RUDP.Packet;
 import assignment3.observer.NoticeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,10 @@ public class ServerConnection extends Connection {
 
     private long remoteSeqNum;
     private long localSeqNum;
-    private SocketAddress router;
 
-
-    private InetSocketAddress targetAddress;
+    private SocketAddress     router;
     private ChannelThread     channelThread;
+    private InetSocketAddress targetAddress;
 
     public ServerConnection(ChannelThread channelThread, SocketAddress routerAddr) {
         super();
@@ -66,15 +66,17 @@ public class ServerConnection extends Connection {
     }
 
     private void answerSYNACK(Packet recvPacket) throws IOException {
-        logger.debug("Handshaking #3 SYN packet has received");
-        Packet p = new Packet.Builder()
-                .setType(Packet.SYN_3)
-                .setSequenceNumber(this.remoteSeqNum + 1)
-                .setPortNumber(this.targetAddress.getPort())
-                .setPeerAddress(this.targetAddress.getAddress())
-                .setPayload("".getBytes())
-                .create();
-        this.channelThread.getChannel().send(p.toBuffer(), this.router);
-        logger.debug("Handshaking #4 SYN_ACK_ACK packet has sent out");
+        if (recvPacket.getSequenceNumber() == this.localSeqNum + 1) {
+            logger.debug("Handshaking #3 SYN packet has received");
+            Packet p = new Packet.Builder()
+                    .setType(Packet.SYN_3)
+                    .setSequenceNumber(this.remoteSeqNum + 1)
+                    .setPortNumber(this.targetAddress.getPort())
+                    .setPeerAddress(this.targetAddress.getAddress())
+                    .setPayload("".getBytes())
+                    .create();
+            this.channelThread.getChannel().send(p.toBuffer(), this.router);
+            logger.debug("Handshaking #4 SYN_ACK_ACK packet has sent out");
+        }
     }
 }

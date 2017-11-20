@@ -1,11 +1,13 @@
-package assignment3;
+package assignment3.sr;
 
+import assignment3.RUDP.Packet;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -32,18 +34,33 @@ public class ChannelThread extends Subject implements Runnable {
 
     private final List<Packet> queue;
 
+    private String          remoteAddr;
+    private int             remotePort;
     private Connection      connection;
-    private SocketAddress   rtrAddr;
+    private SocketAddress   router;
     private DatagramChannel channel;
     private Selector        selector;
     private Window          window;
 
-    public ChannelThread(DatagramChannel channel, SocketAddress rtrAddr) {
-        this.rtrAddr   = rtrAddr;
-        this.channel   = channel;
-        this.queue     = new LinkedList<>();
-        this.window    = new Window(this.queue, this);
-        this.attach(this.window);
+    public ChannelThread(DatagramChannel channel, SocketAddress router) throws IOException {
+        this.router     = router;
+        this.channel    = channel;
+        this.queue      = new LinkedList<>();
+        this.window     = new Window(this.queue, this);
+        this.connection = new ServerConnection(this, this.router);
+        this.init();
+    }
+
+    public ChannelThread(DatagramChannel channel, SocketAddress router,
+                         String remoteAddr, int remotePort) throws IOException {
+        this.remoteAddr = remoteAddr;
+        this.remotePort = remotePort;
+        this.router     = router;
+        this.channel    = channel;
+        this.queue      = new LinkedList<>();
+        this.window     = new Window(this.queue, this);
+        this.connection = new Connection(this, this.router);
+        this.init();
     }
 
     @Override
@@ -75,6 +92,19 @@ public class ChannelThread extends Subject implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void init() throws IOException {
+
+        // register all observers for the ChannelThread
+        this.attach(this.window);
+        this.attach(this.connection);
+
+        // if the connection is a client, build the connection between sender and receiver
+        // note that the server don't need to build the connection just wait for client
+        if (this.remoteAddr != null && this.remotePort != 0) {
+            this.connection.connect(new InetSocketAddress(this.remoteAddr, this.remotePort));
         }
     }
 
@@ -137,8 +167,8 @@ public class ChannelThread extends Subject implements Runnable {
             int time = this.window.getHasSth2Send();
             while (time > 0) {
                 Packet p = this.queue.get(i);
-                c.send(p.toBuffer(), this.rtrAddr);
-                printPacketDetail(this.rtrAddr, p, false);
+                c.send(p.toBuffer(), this.router);
+                printPacketDetail(this.router, p, false);
                 new Thread(this.window.getTimerMap().get(p.getSequenceNumber())).start();
                 time--;
             }
@@ -154,7 +184,14 @@ public class ChannelThread extends Subject implements Runnable {
         this.send(packets);
     }
 
-    public void send(Packet[] packets) {
+    public void send(Packet packet) {
+        synchronized (this.queue) {
+            this.queue.add(packet);
+            this.notifyObservers(NoticeMsg.WIN_CHECK, packet);
+        }
+    }
+
+    private void send(Packet[] packets) {
         synchronized (this.queue) {
             for (Packet p : packets) {
                 this.queue.add(p);
@@ -174,8 +211,5 @@ public class ChannelThread extends Subject implements Runnable {
         return channel;
     }
 
-    public void bind(Connection connection) {
-        this.connection = connection;
-    }
 }
 

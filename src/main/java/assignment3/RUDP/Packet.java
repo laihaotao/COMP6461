@@ -1,4 +1,4 @@
-package assignment3;
+package assignment3.RUDP;
 
 import java.io.IOException;
 import java.net.Inet4Address;

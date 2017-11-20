@@ -1,5 +1,6 @@
-package assignment3;
+package assignment3.sr;
 
+import assignment3.RUDP.Packet;
 import assignment3.observer.NoticeMsg;
 import assignment3.observer.Observer;
 import org.slf4j.Logger;
@@ -131,9 +132,8 @@ public class Window extends Observer {
         int n = 0;
         for (int i = 0; i < this.timerMap.size(); i++){
             long seqNum = this.queue.get(0).getSequenceNumber();
-            if (this.timerMap.get(seqNum).isHasAcked()) {
-                n++;
-            } else break;
+            if (this.timerMap.get(seqNum).isHasAcked()) n++;
+            else break;
         }
         return n;
     }

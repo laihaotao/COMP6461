@@ -1,6 +1,6 @@
 package assignment3.observer;
 
-import assignment3.Packet;
+import assignment3.RUDP.Packet;
 
 import java.io.IOException;
 
