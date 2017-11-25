@@ -6,6 +6,7 @@ import assignment3.observer.Observer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -37,7 +38,7 @@ public class Window extends Observer {
     }
 
     @Override
-    protected void update(NoticeMsg msg, Packet packet) {
+    protected void update(NoticeMsg msg, Packet packet) throws IOException {
         switch (msg) {
             case WIN_CHECK:
                 // every time when we are adding packet into the
@@ -53,12 +54,13 @@ public class Window extends Observer {
                 }
                 break;
             case ACK:
-                if (isAckBasePacket(packet)) {
+                if (packet != null && this.basePacket != null
+                    && packet.getSequenceNumber() == basePacket.getSequenceNumber()) {
                     this.terminateTimer(packet.getSequenceNumber());
                     this.slideWindow();
                     logger.debug("Current basePacket # {} was acked, slide down window",
                             packet.getSequenceNumber());
-                } else {
+                } else if (packet != null){
                     this.terminateTimer(packet.getSequenceNumber());
                     logger.debug("Packet # {} was acked, but not basePacket",
                             packet.getSequenceNumber());
@@ -66,29 +68,24 @@ public class Window extends Observer {
                 break;
             case TIME_OUT:
                 // get current packet's timer, check the status
-                Timer timer = this.timerMap.get(packet.getSequenceNumber());
+                long key = packet.getSequenceNumber();
+                Timer timer = this.timerMap.get(key);
                 if (!timer.isAcked()) {
-                    // if the packet hasn't receive an
-                    // ack we have to retransmit it
-                    int nextSending = this.queue.indexOf(this.lastPacket) + 1;
-                    this.thread.send(nextSending, packet);
-                    logger.info("Time out happen packet # {}", packet.getSequenceNumber());
+                    // if the real timeout happen
+                    this.thread.getChannel().send(packet.toBuffer(), this.thread.getRouter());
+                    new Thread(timer).start();
+                    logger.info("Time out happen packet # {}", key);
+                } else {
+                    // no real timeout, it is time to remove this timer
+                    this.timerMap.remove(key);
                 }
         }
     }
 
-    private boolean isAckBasePacket(Packet ackPacket) {
-        if (ackPacket != null) {
-            long ackPckSeqNum = ackPacket.getSequenceNumber();
-            return ackPckSeqNum == this.basePacket.getSequenceNumber();
-        }
-        return false;
-    }
-
     private void terminateTimer(long ackPckSeqNum) {
-        // find that packet waiting for the ack with the ackNum, if it exists terminate its timer
         if (this.timerMap.containsKey(ackPckSeqNum)) {
-            this.timerMap.get(ackPckSeqNum).setAcked(true);
+            Timer timer = this.timerMap.get(ackPckSeqNum);
+            timer.setAcked(true);
         }
     }
 
@@ -103,60 +100,47 @@ public class Window extends Observer {
     }
 
     private void slideWindow() {
-        // check how many ack received counting from the basePacket
-        int n = this.getNumberOfAckPacket();
-
-        // remove the first min element, since they have been acked
-        for (int i = 0; i < n; i++) {
-            this.queue.remove(0);
-            logger.debug("remove the {}th packet in the queue", i + 1);
+        int offset = this.getAlreadyAckAmt();
+        for (int i = 0; i < offset; i++) {
+            if (!this.queue.isEmpty())
+                this.queue.remove(0);
+            else
+                break;
         }
 
-        // move the basePacket pointer to the appropriate place
-        // and update the lastPacket pointer's position
-        if (!this.queue.isEmpty()) {
-            this.basePacket = this.queue.get(0);
-            int min = Math.min(this.queue.size(), this.WIN_SIZE) - 1;
-            Packet prev     = this.lastPacket;
-            this.lastPacket = this.queue.get(min);
-            // check everything inside current window and send
-            // that packets which are ready to be sent
-            this.checkAndSend(prev);
-        } else {
+        if (this.queue.isEmpty()) {
             this.basePacket = null;
             this.lastPacket = null;
+        } else {
+            this.basePacket = this.queue.get(0);
+            int lastIdx = Math.min(this.WIN_SIZE - 1, this.queue.size() - 1);
+            this.lastPacket = this.queue.get(lastIdx);
+            this.checkAndSend();
         }
     }
 
-    private int getNumberOfAckPacket() {
-        int n = 0;
-        // check from the basePacket to lastPacket count
-        // how many packets have been acked
-        int firstIdx = this.queue.indexOf(this.basePacket);
-        Iterator<Packet> it = this.queue.listIterator(firstIdx);
-        Packet next = it.next();
-        while (next != null) {
-            n++;
-            if (!this.timerMap.containsKey(next.getSequenceNumber())
-                && this.timerMap.get(next.getSequenceNumber()).isAcked()) {
-                next = it.next();
-            }
-            else break;
+    private int getAlreadyAckAmt() {
+        int counter = 0;
+        Packet cur = this.basePacket;
+        while (counter < this.WIN_SIZE) {
+            if (this.timerMap.containsKey(cur.getSequenceNumber())
+                && this.timerMap.get(cur.getSequenceNumber()).isAcked()) {
+                counter++;
+            } else break;
         }
-        logger.debug("Slide down window # {} time", n);
-        return n;
+        return counter;
     }
 
-    private void checkAndSend(Packet prev) {
-        int start = this.queue.indexOf(prev) + 1;
-        int end   = this.queue.indexOf(this.lastPacket);
-        logger.info("check and send, start: {}, end: {}", start, end);
-
-        if (start != 0) {
-            for (int i = start; i <= end; i++) {
-                this.send(this.queue.get(i));
-                logger.debug("Slide down window, sending out packet # {}", this.queue.get(i).getSequenceNumber());
+    private void checkAndSend() {
+        Iterator<Packet> it = this.queue.listIterator();
+        Packet cur;
+        while (it.hasNext()) {
+            cur = it.next();
+            long key = cur.getSequenceNumber();
+            if (!this.timerMap.containsKey(key)) {
+                this.send(cur);
             }
+            if (cur == this.lastPacket) break;
         }
     }
 

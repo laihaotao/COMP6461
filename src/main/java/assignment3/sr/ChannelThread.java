@@ -140,6 +140,7 @@ public class ChannelThread extends Subject implements Runnable {
                 Packet p = this.queue.get(i);
                 c.send(p.toBuffer(), this.router);
                 printPacketDetail(p, false);
+                // start the timer thread
                 new Thread(this.window.getTimerMap().get(p.getSequenceNumber())).start();
                 time--;
                 i++;
@@ -184,6 +185,10 @@ public class ChannelThread extends Subject implements Runnable {
 
     public DatagramChannel getChannel() {
         return channel;
+    }
+
+    public SocketAddress getRouter() {
+        return router;
     }
 
     public void bind(Connection connection) {

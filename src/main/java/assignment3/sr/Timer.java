@@ -14,7 +14,7 @@ import assignment3.observer.Subject;
 
 public class Timer extends Subject implements Runnable{
 
-    private final long TIME_OUT = 2000;
+    private final long TIME_OUT = 1000;
 
     private Packet  packet;
     private boolean isAcked;

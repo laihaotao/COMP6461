@@ -74,7 +74,7 @@ public class ClientRUDP {
     public void sendMultiplePacket(int amount) {
         long seqNum = 1001;
         InetSocketAddress addr = new InetSocketAddress("localhost", 8007);
-        for (int i = 0; i<amount;i++) {
+        for (int i = 0; i < amount; i++) {
             Packet p = new Packet.Builder()
                     .setType(Packet.DATA)
                     .setSequenceNumber(seqNum)
