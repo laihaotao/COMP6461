@@ -51,7 +51,9 @@ public class ServerConnection extends Connection {
 
     private void answerSYN(Packet recvPacket) throws IOException {
         InetAddress addr = recvPacket.getPeerAddress();
-        this.targetAddress = new InetSocketAddress(addr, recvPacket.getPeerPort());
+//        this.targetAddress = new InetSocketAddress(addr, recvPacket.getPeerPort());
+        this.targetAddress = new InetSocketAddress("localhost", 8098);
+
         logger.debug("Handshaking #1 SYN packet has received");
         this.remoteSeqNum = recvPacket.getSequenceNumber();
         Packet p = new Packet.Builder()
@@ -61,7 +63,10 @@ public class ServerConnection extends Connection {
                 .setPeerAddress(this.targetAddress.getAddress())
                 .setPayload("".getBytes())
                 .create();
-        this.channelThread.getChannel().send(p.toBuffer(), this.router);
+
+//        this.channelThread.getChannel().send(p.toBuffer(), this.router);
+        this.channelThread.getChannel().send(p.toBuffer(), this.targetAddress);
+
         logger.debug("Handshaking #2 ACK_SYN packet has sent out");
     }
 
@@ -75,7 +80,10 @@ public class ServerConnection extends Connection {
                     .setPeerAddress(this.targetAddress.getAddress())
                     .setPayload("".getBytes())
                     .create();
-            this.channelThread.getChannel().send(p.toBuffer(), this.router);
+
+//            this.channelThread.getChannel().send(p.toBuffer(), this.router);
+            this.channelThread.getChannel().send(p.toBuffer(), this.targetAddress);
+
             logger.debug("Handshaking #4 SYN_ACK_ACK packet has sent out");
         }
     }

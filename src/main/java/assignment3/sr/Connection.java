@@ -83,8 +83,13 @@ public class Connection extends Observer {
                 .setPeerAddress(this.targetAddress.getAddress())
                 .setPayload("".getBytes())
                 .create();
-        // send handshake packet to the router
-        this.channelThread.getChannel().send(packet.toBuffer(), router);
+//
+//        // send handshake packet to the router
+//        this.channelThread.getChannel().send(packet.toBuffer(), router);
+
+        // let's assume all the handshake packet will not be dropped by the router
+        this.channelThread.getChannel().send(packet.toBuffer(), this.targetAddress);
+
         logger.debug("Handshaking #1 SYN packet has already sent out");
     }
 
@@ -101,7 +106,10 @@ public class Connection extends Observer {
                         .setPeerAddress(this.targetAddress.getAddress())
                         .setPayload("".getBytes())
                         .create();
-                this.channelThread.getChannel().send(p.toBuffer(), this.router);
+
+//                this.channelThread.getChannel().send(p.toBuffer(), this.router);
+                this.channelThread.getChannel().send(p.toBuffer(), this.targetAddress);
+
                 logger.debug("Handshaking #3 ACK_SYN packet has sent out");
                 break;
             case SYN_ACK_ACK:
