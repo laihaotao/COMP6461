@@ -23,12 +23,12 @@ import java.util.List;
 
 public class RecvBuffer extends Observer{
 
-    private static final Logger logger = LoggerFactory.getLogger(ChannelThread.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecvBuffer.class);
 
     private final int WIN_SIZE = 4;
+    private final List<Byte> buffer;
 
     private long          curMinNum;
-    private List<Byte>    buffer;
     private Packet[]      window;
     private ChannelThread thread;
     private SocketAddress rounter;
@@ -57,27 +57,42 @@ public class RecvBuffer extends Observer{
     }
 
     public int receive(ByteBuffer result) {
-        if (this.buffer.isEmpty()) return -1;
+        // when the user want to receive something, if the
+        // buffer is empty, block the user thread here
+        if (this.buffer.isEmpty()) {
+            synchronized (this.buffer) {
+                try {
+                    this.buffer.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         int    i   = 0;
         byte[] tmp = new byte[this.buffer.size()];
         for (byte b : this.buffer) {
             tmp[i++] = b;
         }
-        this.buffer.clear();
+        int len = tmp.length;
+        result.clear();
         result.put(tmp);
-        return this.buffer.size();
+        this.buffer.clear();
+        return len;
     }
 
     private Packet handleDataPacket(Packet p) {
         long seqNum = p.getSequenceNumber();
         if (seqNum >= this.curMinNum && seqNum < this.curMinNum + this.WIN_SIZE) {
             // if the sequence number indicate that the packet is the one we
-            // are waiting for, put into the buffer and  if we have the check
+            // are waiting for, put into the buffer and if we have the check
             // the contiguous packets can give to the secondary buffer
-            int idx = (int) (seqNum - curMinNum);
-            window[idx] = p;
+            int idx = (int) (seqNum - this.curMinNum);
+            this.window[idx] = p;
         }
         this.checkAndMove();
+        synchronized (this.buffer) {
+            this.buffer.notify();
+        }
         // generate an ACK for that packet and send it back to the sender
         // no matter the packet is the one we are waiting for or not
         return constructAckPacket(p);
@@ -98,7 +113,10 @@ public class RecvBuffer extends Observer{
         int idx = 0;
         for (; idx < this.WIN_SIZE; idx++) {
             // if the idx packet is null means not continuous
-            if (this.window[idx] == null) break;
+            if (this.window[idx] == null) {
+                this.curMinNum += idx;
+                break;
+            }
             // otherwise, add the payload to the buffer
             byte[] payload = this.window[idx].getPayload();
             for (byte b : payload) {
