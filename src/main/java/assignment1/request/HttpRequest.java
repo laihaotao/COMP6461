@@ -36,7 +36,7 @@ public class HttpRequest {
     public void send() throws IOException {
         buildRequest();
         String content = builder.toString();
-        connection.send(content, holder.host, Integer.parseInt(holder.port));
+        connection.send(content);
         if (holder.isVerbose) {
             System.out.print(content);
         }

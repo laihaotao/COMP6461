@@ -17,4 +17,5 @@ public enum NoticeMsg {
     DATA,
     WIN_CHECK,
     TIME_OUT,
+    END_OF_DATA,
 }

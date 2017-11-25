@@ -128,6 +128,10 @@ public class ChannelThread extends Subject implements Runnable {
             case Packet.DATA:
                 this.notifyObservers(NoticeMsg.DATA, packet);
                 break;
+            // if the packet is the end of data indicator, tell the receiver buffer
+            case Packet.EOD:
+                this.notifyObservers(NoticeMsg.END_OF_DATA, packet);
+                break;
         }
     }
 

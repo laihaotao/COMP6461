@@ -56,13 +56,21 @@ public class Connection extends Observer {
         int      mLen      = message.length;
         int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
         int      offset    = 0;
-        Packet[] packets   = new Packet[packetAmt];
-        for (int i = 0; i < packetAmt; i++) {
+        Packet[] packets   = new Packet[packetAmt + 1];
+        for (int i = 0, pLen = packets.length; i < pLen; i++) {
             byte[] tmp = new byte[Packet.MAX_DATA];
             int    len = ((mLen - offset) < Packet.MAX_DATA) ? (mLen - offset) : Packet.MAX_DATA;
             System.arraycopy(message, offset, tmp, 0, len);
+            int type;
+            if (i == pLen - 1) {
+                type = Packet.EOD;
+                tmp = "".getBytes();
+            }
+            else {
+                type = Packet.DATA;
+            }
             Packet p = new Packet.Builder()
-                    .setType(Packet.DATA)
+                    .setType(type)
                     .setSequenceNumber(++this.localSeqNum)
                     .setPortNumber(this.targetAddress.getPort())
                     .setPeerAddress(this.targetAddress.getAddress())

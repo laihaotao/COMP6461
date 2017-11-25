@@ -17,6 +17,7 @@ public class Packet {
     public static final int SYN_1 = 2;
     public static final int SYN_2 = 3;
     public static final int SYN_3 = 4;
+    public static final int EOD   = 5;
 
     public static final int MIN_LEN  = 11;
     public static final int MAX_LEN  = 1024;

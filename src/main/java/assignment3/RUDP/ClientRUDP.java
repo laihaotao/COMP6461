@@ -85,5 +85,13 @@ public class ClientRUDP {
             this.thread.send(p);
             seqNum++;
         }
+        Packet p = new Packet.Builder()
+                .setType(Packet.EOD)
+                .setSequenceNumber(seqNum)
+                .setPortNumber(addr.getPort())
+                .setPeerAddress(addr.getAddress())
+                .setPayload(("hello world " + seqNum).getBytes())
+                .create();
+        this.thread.send(p);
     }
 }

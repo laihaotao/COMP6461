@@ -20,14 +20,17 @@ public class ServerTest {
             ServerRUDP server = new ServerRUDP(8007);
             int len;
             ByteBuffer buf = ByteBuffer.allocate(1024);
+            StringBuilder builder = new StringBuilder();
 
             while ((len = server.receive(buf)) != -1) {
                 byte[] raw = buf.array();
                 byte[] bytes = new byte[len];
                 System.arraycopy(raw, 0, bytes, 0, len);
                 String content = new String(bytes);
-                System.out.println(content);
+                builder.append(content);
             }
+
+            System.out.println(builder.toString());
 
         } catch (IOException e) {
             e.printStackTrace();
