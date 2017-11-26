@@ -1,5 +1,6 @@
 package assignment3.RUDP;
 
+import assignment2_2.HttpResponse;
 import assignment3.sr.ChannelThread;
 import assignment3.sr.Connection;
 import assignment3.sr.RecvBuffer;
@@ -8,10 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Author:  Eric(Haotao) Lai
@@ -66,5 +71,23 @@ public class ServerRUDP {
 
     public int receive(ByteBuffer result) {
         return this.recvBuffer.receive(result);
+    }
+
+    public void sendResponse(HttpResponse response) throws IOException {
+        if (response.strBody != null) {
+            this.thread.send((response.toString() + response.strBody).getBytes("utf-8"));
+        }
+        else if (response.getFileBody() != null) {
+            List<Packet> list = new ArrayList<>();
+            byte[] out_buf;
+            while ((out_buf = response.getBody()) != null) {
+                list.addAll(Arrays.asList(this.connection.makeChunks(out_buf, false)));
+            }
+            list.add(((ServerConnection)this.connection).generateEndOfDataPacket());
+            for (Packet p : list) {
+                this.thread.send(p);
+            }
+        }
+
     }
 }

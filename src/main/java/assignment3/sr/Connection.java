@@ -28,11 +28,11 @@ public class Connection extends Observer {
 
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
 
-    private long          localSeqNum;
-    private long          remoteSeqNum;
-    private long          handshakeNum;
-    private boolean       connected;
-    private SocketAddress router;
+    private   long          localSeqNum;
+    private   long          remoteSeqNum;
+    private   long          handshakeNum;
+    protected boolean       connected;
+    private   SocketAddress router;
 
     private InetSocketAddress targetAddress;
     private ChannelThread     channelThread;
@@ -52,17 +52,24 @@ public class Connection extends Observer {
         this.sendInitialSegment();
     }
 
-    public Packet[] makeChunks(byte[] message) {
+    @SuppressWarnings("Duplicates")
+    public Packet[] makeChunks(byte[] message, boolean isAddEOD) {
         int      mLen      = message.length;
         int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
         int      offset    = 0;
-        Packet[] packets   = new Packet[packetAmt + 1];
+
+        Packet[] packets;
+        if (isAddEOD)
+            packets = new Packet[packetAmt + 1];
+        else
+            packets = new Packet[packetAmt];
+
         for (int i = 0, pLen = packets.length; i < pLen; i++) {
             byte[] tmp = new byte[Packet.MAX_DATA];
             int    len = ((mLen - offset) < Packet.MAX_DATA) ? (mLen - offset) : Packet.MAX_DATA;
             System.arraycopy(message, offset, tmp, 0, len);
             int type;
-            if (i == pLen - 1) {
+            if (isAddEOD && i == pLen - 1) {
                 type = Packet.EOD;
                 tmp = "".getBytes();
             }

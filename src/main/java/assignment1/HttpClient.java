@@ -20,11 +20,11 @@ public class HttpClient {
     public static void main(String[] args) throws IOException {
         int times = 0, max = 5;
         HttpResponse response = getResponse(args);
-        while (response.isRedirected && times < max) {
-            args[args.length - 1] = response.location;
-            response = getResponse(args);
-            times += 1;
-        }
+//        while (response.isRedirected && times < max) {
+//            args[args.length - 1] = response.location;
+//            response = getResponse(args);
+//            times += 1;
+//        }
     }
 
     private static HttpResponse getResponse(String[] args) throws IOException {

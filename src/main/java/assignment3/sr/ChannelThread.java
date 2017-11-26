@@ -156,7 +156,7 @@ public class ChannelThread extends Subject implements Runnable {
 
     public void send(byte[] message) throws IOException {
         // break the message into chunks
-        Packet[] packets = this.connection.makeChunks(message);
+        Packet[] packets = this.connection.makeChunks(message, true);
         // put all chunks into the SenderThread buffer
         this.send(packets);
     }

@@ -38,6 +38,6 @@ public class HttpFs {
         RequestBuilder reqBuilder = new RequestBuilder(strBuilder.toString(), holder);
         RequestHandler handler = new RequestHandler();
         HttpResponse response = handler.requestHandler(reqBuilder.getRequest());
-        server.send(response.toString());
+        server.sendResponse(response);
     }
 }

@@ -12,10 +12,10 @@ import java.io.IOException;
 public class RequestHandler {
 
     public HttpResponse requestHandler(HttpRequest request) {
-        String       method   = request.method.toLowerCase();
-        String       path     = request.targetPath;
-        File file     = new File(path);
-        int          code     = 200;
+        String method = request.method.toLowerCase();
+        String path   = request.targetPath;
+        int    code   = 200;
+        File   file   = new File(path);
         HttpResponse response = new HttpResponse(request.version);
 
         if ("get".equals(method)) {

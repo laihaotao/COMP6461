@@ -41,6 +41,8 @@ public class Window extends Observer {
     protected void update(NoticeMsg msg, Packet packet) throws IOException {
         switch (msg) {
             case WIN_CHECK:
+                logger.debug("window check: {}", packet.getSequenceNumber());
+                logger.debug("timeMap size: {}", this.timerMap.size());
                 // every time when we are adding packet into the
                 // buffer, the following codes will be invoked
                 if (this.timerMap.isEmpty()) {

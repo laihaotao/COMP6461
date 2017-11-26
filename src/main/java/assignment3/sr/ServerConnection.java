@@ -83,8 +83,55 @@ public class ServerConnection extends Connection {
 
 //            this.channelThread.getChannel().send(p.toBuffer(), this.router);
             this.channelThread.getChannel().send(p.toBuffer(), this.targetAddress);
-
+            this.connected = true;
             logger.debug("Handshaking #4 SYN_ACK_ACK packet has sent out");
         }
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    public Packet[] makeChunks(byte[] message, boolean isAddEOD) {
+        int      mLen      = message.length;
+        int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
+        int      offset    = 0;
+
+        Packet[] packets;
+        if (isAddEOD)
+            packets = new Packet[packetAmt + 1];
+        else
+            packets = new Packet[packetAmt];
+
+        for (int i = 0, pLen = packets.length; i < pLen; i++) {
+            byte[] tmp = new byte[Packet.MAX_DATA];
+            int    len = ((mLen - offset) < Packet.MAX_DATA) ? (mLen - offset) : Packet.MAX_DATA;
+            System.arraycopy(message, offset, tmp, 0, len);
+            int type;
+            if (isAddEOD && i == pLen - 1) {
+                type = Packet.EOD;
+                tmp = "".getBytes();
+            }
+            else {
+                type = Packet.DATA;
+            }
+            Packet p = new Packet.Builder()
+                    .setType(type)
+                    .setSequenceNumber(++this.localSeqNum)
+                    .setPortNumber(this.targetAddress.getPort())
+                    .setPeerAddress(this.targetAddress.getAddress())
+                    .setPayload(tmp)
+                    .create();
+            packets[i] = p;
+        }
+        return packets;
+    }
+
+    public Packet generateEndOfDataPacket() {
+        return new Packet.Builder()
+                .setType(Packet.EOD)
+                .setSequenceNumber(++this.localSeqNum)
+                .setPortNumber(this.targetAddress.getPort())
+                .setPeerAddress(this.targetAddress.getAddress())
+                .setPayload("".getBytes())
+                .create();
     }
 }
