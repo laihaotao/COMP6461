@@ -1,8 +1,5 @@
 package assignment1.response;
 
-import assignment1.common.ParamHolder;
-import assignment1.transmission.Connection;
-
 /**
  * Author:  Eric(Haotao) Lai
  * Date:    2017-09-10
@@ -42,9 +39,9 @@ public class HttpResponse {
     @Override
     public String toString() {
         String str = "";
-        if (responseLine != null) str += responseLine.toString() + "\n";
-        if (responseHeader != null) str += responseHeader.toString() + "\n";
-        if (responseBody != null) str += responseBody.toString() + "\n";
+        if (responseLine != null) {str += responseLine.toString() + "\n";}
+        if (responseHeader != null) {str += responseHeader.toString() + "\n";}
+        if (responseBody != null) {str += responseBody.toString() + " \n";}
         return str;
     }
 }

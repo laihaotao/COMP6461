@@ -79,6 +79,8 @@ public class ServerRUDP {
         else if (response.getFileBody() != null) {
             List<Packet> list = new ArrayList<>();
             byte[] out_buf;
+            out_buf = response.toString().getBytes("utf-8");
+            list.addAll(Arrays.asList(this.connection.makeChunks(out_buf, false)));
             while ((out_buf = response.getBody()) != null) {
                 list.addAll(Arrays.asList(this.connection.makeChunks(out_buf, false)));
             }

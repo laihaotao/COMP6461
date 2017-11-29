@@ -91,7 +91,12 @@ public class ServerConnection extends Connection {
     @SuppressWarnings("Duplicates")
     @Override
     public Packet[] makeChunks(byte[] message, boolean isAddEOD) {
-        int      mLen      = message.length;
+        int counter = 0;
+        for (; counter < message.length; counter++) {
+            if (message[counter] == 0) break;
+        }
+
+        int      mLen      = counter;
         int      packetAmt = (mLen / Packet.MAX_DATA) + 1;
         int      offset    = 0;
 

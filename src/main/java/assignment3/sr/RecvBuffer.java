@@ -93,19 +93,20 @@ public class RecvBuffer extends Observer{
                     e.printStackTrace();
                 }
             }
-
-            if (!this.buffer.isEmpty()) {
-                int    i   = 0;
-                byte[] tmp = new byte[this.buffer.size()];
-                for (byte b : this.buffer) {
-                    tmp[i++] = b;
-                }
-                len = tmp.length;
-                result.clear();
-                result.put(tmp);
-                this.buffer.clear();
-            }
         }
+
+        if (!this.buffer.isEmpty()) {
+            int    i   = 0;
+            byte[] tmp = new byte[this.buffer.size()];
+            for (byte b : this.buffer) {
+                tmp[i++] = b;
+            }
+            len = tmp.length;
+            result.clear();
+            result.put(tmp);
+            this.buffer.clear();
+        }
+
         return len;
     }
 

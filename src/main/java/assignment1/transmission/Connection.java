@@ -129,7 +129,6 @@ public class Connection {
         }
 
         if (isVerbose && response != null) {
-            System.out.println("client output");
             System.out.println(response.toString());
         }
         return response;
