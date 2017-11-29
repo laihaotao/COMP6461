@@ -128,7 +128,10 @@ public class Connection {
             outputToFile(bodyData.toString());
         }
 
-        if (isVerbose && response != null) System.out.println(response.toString());
+        if (isVerbose && response != null) {
+            System.out.println("client output");
+            System.out.println(response.toString());
+        }
         return response;
     }
 

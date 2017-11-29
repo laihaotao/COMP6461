@@ -42,9 +42,9 @@ public class HttpResponse {
     @Override
     public String toString() {
         String str = "";
-        if (responseLine != null) str += responseLine.toString() + "\r\n";
-        if (responseHeader != null) str += responseHeader.toString() + "\r\n";
-        if (responseBody != null) str += responseBody.toString() + "\r\n";
+        if (responseLine != null) str += responseLine.toString() + "\n";
+        if (responseHeader != null) str += responseHeader.toString() + "\n";
+        if (responseBody != null) str += responseBody.toString() + "\n";
         return str;
     }
 }

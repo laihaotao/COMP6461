@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -60,7 +59,7 @@ public class ServerRUDP {
         this.thread.bind(this.connection);
 
         // allocate the data received buffer
-        this.recvBuffer = new RecvBuffer(this.thread, this.routerAddr);
+        this.recvBuffer = new RecvBuffer(this.thread, this.routerAddr, this.connection);
         this.thread.attach(this.recvBuffer);
         recvThread.start();
     }

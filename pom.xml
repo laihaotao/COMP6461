@@ -66,10 +66,10 @@
           <archive>
             <manifest>
               <!--build assignment 1 executable jar file-->
-              <!--<mainClass>assignment1.HttpClient</mainClass>-->
+              <mainClass>assignment1.HttpClient</mainClass>
 
               <!--build assignment 2 executable jar file-->
-              <mainClass>assignment2.HttpFs</mainClass>
+              <!--<mainClass>assignment2.HttpFs</mainClass>-->
 
             </manifest>
           </archive>

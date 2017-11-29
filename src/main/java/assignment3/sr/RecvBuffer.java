@@ -30,22 +30,28 @@ public class RecvBuffer extends Observer{
 
     private boolean       isLastPacket;
     private long          curMinNum;
+    private long          endSeqNum;
     private Packet[]      window;
     private ChannelThread thread;
     private SocketAddress rounter;
+    private Connection    connection;
 
-    public RecvBuffer(ChannelThread thread, SocketAddress rounter) {
+    public RecvBuffer(ChannelThread thread, SocketAddress rounter, Connection connection) {
         this.thread = thread;
         this.buffer = new LinkedList<>();
         this.window = new Packet[this.WIN_SIZE];
         this.rounter = rounter;
+        this.connection = connection;
+        this.curMinNum = -2;
+        this.endSeqNum = -3;
     }
 
     @Override
     protected void update(NoticeMsg msg, Packet packet) throws IOException {
         switch (msg) {
             case END_OF_DATA:
-                this.isLastPacket = true;
+                this.endSeqNum = packet.getSequenceNumber();
+                logger.debug("Receive an end of data packet, endSeqNum = # {}", this.endSeqNum);
             case DATA:
                 logger.debug("RecvBuffer receive a packet, handling ...");
                 Packet p = this.handleDataPacket(packet);
@@ -55,22 +61,31 @@ public class RecvBuffer extends Observer{
                 logger.debug("An ACK for packet #{} has been sent", packet.getSequenceNumber());
                 break;
 
+            case SYN_ACK:
+                if (!(this.connection instanceof ServerConnection)) {
+                    long initialSeqNum = packet.getSequenceNumber() + 1;
+                    logger.info("RecvBuffer receive the initial seqNum #{}", initialSeqNum);
+                    this.curMinNum  = initialSeqNum;
+                }
+                break;
+
             case SYN:
-                long initialSeqNum = packet.getSequenceNumber() + 1;
-                logger.debug("RecvBuffer receive the initial seqNum #{}", initialSeqNum);
-                this.curMinNum = initialSeqNum;
+                if (this.connection instanceof ServerConnection) {
+                    long initialSeqNum = packet.getSequenceNumber() + 1;
+                    logger.info("RecvBuffer receive the initial seqNum #{}", initialSeqNum);
+                    this.curMinNum  = initialSeqNum;
+                }
                 break;
         }
     }
 
     public int receive(ByteBuffer result) {
-        if (this.isLastPacket) {
-            this.isLastPacket = false;
-            return -1;
-        }
+        if (this.endSeqNum == this.curMinNum) return -1;
+
+        int len = 0;
         // when the user want to receive something, if the
         // buffer is empty, block the user thread here
-        if (this.buffer.isEmpty()) {
+        while (this.endSeqNum != this.curMinNum) {
             synchronized (this.buffer) {
                 try {
                     this.buffer.wait();
@@ -78,16 +93,19 @@ public class RecvBuffer extends Observer{
                     e.printStackTrace();
                 }
             }
+
+            if (!this.buffer.isEmpty()) {
+                int    i   = 0;
+                byte[] tmp = new byte[this.buffer.size()];
+                for (byte b : this.buffer) {
+                    tmp[i++] = b;
+                }
+                len = tmp.length;
+                result.clear();
+                result.put(tmp);
+                this.buffer.clear();
+            }
         }
-        int    i   = 0;
-        byte[] tmp = new byte[this.buffer.size()];
-        for (byte b : this.buffer) {
-            tmp[i++] = b;
-        }
-        int len = tmp.length;
-        result.clear();
-        result.put(tmp);
-        this.buffer.clear();
         return len;
     }
 
@@ -100,8 +118,10 @@ public class RecvBuffer extends Observer{
                 // the contiguous packets can give to the secondary buffer
                 int idx = (int) (seqNum - this.curMinNum);
                 this.window[idx] = p;
+                this.checkAndMove();
+            } else {
+                logger.debug("Already received it or not expecting packet # {}", seqNum);
             }
-            this.checkAndMove();
             // generate an ACK for that packet and send it back to the sender
             // no matter the packet is the one we are waiting for or not
         }
@@ -127,14 +147,14 @@ public class RecvBuffer extends Observer{
         for (; idx < this.WIN_SIZE; idx++) {
             // if the idx packet is null means not continuous
             if (this.window[idx] == null) {
-                this.curMinNum += idx;
                 break;
-            }
-            // otherwise, add the payload to the buffer
-            byte[] payload = this.window[idx].getPayload();
-            for (byte b : payload) {
-                if (b == 0) break;
-                this.buffer.add(b);
+            } else {
+                // otherwise, add the payload to the buffer
+                for (byte b : this.window[idx].getPayload()) {
+                    if (b == 0) break;
+                    this.buffer.add(b);
+                }
+                this.curMinNum += 1;
             }
         }
     }

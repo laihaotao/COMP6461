@@ -53,7 +53,7 @@ public class ClientRUDP {
         thread.bind(this.connection);
 
         // allocate the data received buffer
-        this.recvBuffer = new RecvBuffer(this.thread, this.routerAddr);
+        this.recvBuffer = new RecvBuffer(this.thread, this.routerAddr, this.connection);
         this.thread.attach(this.recvBuffer);
 
         // build the connection between sender and receiver
